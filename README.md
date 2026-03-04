@@ -24,19 +24,19 @@ A full-stack Event Management application built with NestJS, React, and PostgreS
 
 `cd Application`
 
-2. Create environment file:
+1. Create environment file:
 
 `cp .env.example .env`
 
-3. Start all services:
+1. Start all services:
 
 `docker-compose up --build`
 
-4. Access the application:
+1. Access the application:
 
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:3000/api
-- Swagger Docs: http://localhost:3000/api/docs
+- Frontend: <http://localhost:5173>
+- Backend API: <http://localhost:3000/api>
+- Swagger Docs: <http://localhost:3000/api/docs>
 
 ## Local Development
 
@@ -50,18 +50,18 @@ A full-stack Event Management application built with NestJS, React, and PostgreS
 
 ### Environment Variables
 
-| Variable       | Description                  | Default                   |
-| -------------- | ---------------------------- | ------------------------- |
-| DB_HOST        | PostgreSQL host              | localhost                 |
-| DB_PORT        | PostgreSQL port              | 5432                      |
-| DB_USERNAME    | PostgreSQL user              | postgres                  |
-| DB_PASSWORD    | PostgreSQL password          | postgres                  |
-| DB_NAME        | PostgreSQL database          | event_management          |
-| JWT_SECRET     | JWT signing secret           | -                         |
-| JWT_EXPIRES_IN | JWT expiration time          | 7d                        |
-| PORT           | Backend port                 | 3000                      |
-| FRONTEND_URL   | Frontend URL for CORS        | http://localhost:5173     |
-| VITE_API_URL   | Backend API URL for frontend | http://localhost:3000/api |
+| Variable       | Description                  | Default                     |
+| -------------- | ---------------------------- | --------------------------- |
+| DB_HOST        | PostgreSQL host              | localhost                   |
+| DB_PORT        | PostgreSQL port              | 5432                        |
+| DB_USERNAME    | PostgreSQL user              | postgres                    |
+| DB_PASSWORD    | PostgreSQL password          | postgres                    |
+| DB_NAME        | PostgreSQL database          | event_management            |
+| JWT_SECRET     | JWT signing secret           | -                           |
+| JWT_EXPIRES_IN | JWT expiration time          | 7d                          |
+| PORT           | Backend port                 | 3000                        |
+| FRONTEND_URL   | Frontend URL for CORS        | <http://localhost:5173>     |
+| VITE_API_URL   | Backend API URL for frontend | <http://localhost:3000/api> |
 
 ## API Endpoints
 
@@ -81,7 +81,7 @@ A full-stack Event Management application built with NestJS, React, and PostgreS
 
 ## Project Structure
 
-```
+```bash
 Application/
 ├── backend/          # NestJS REST API
 ├── frontend/         # React application (see frontend section)
@@ -133,9 +133,3 @@ The application automatically seeds the database on first run:
 `cd backend`
 
 `npm run test`
-
-## Git Workflow
-
-- Main branch: `master`
-- Development branch: `develop`
-- Create PR from `develop` into `master` when done
