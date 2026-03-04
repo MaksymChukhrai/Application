@@ -20,33 +20,37 @@ A full-stack Event Management application built with NestJS, React, and PostgreS
 
 1. Clone the repository:
 
-`git clone https://github.com/MaksymChukhrai/Application.git`
+   ```bash
+   git clone https://github.com/MaksymChukhrai/Application.git
+   cd Application
+   ```
 
-`cd Application`
+2. Create environment file:
 
-1. Create environment file:
+   ```bash
+   cp .env.example .env
+   ```
 
-`cp .env.example .env`
+3. Start all services:
 
-1. Start all services:
+   ```bash
+   docker-compose up --build
+   ```
 
-`docker-compose up --build`
-
-1. Access the application:
-
-- Frontend: <http://localhost:5173>
-- Backend API: <http://localhost:3000/api>
-- Swagger Docs: <http://localhost:3000/api/docs>
+4. Access the application:
+   - Frontend: [http://localhost:5173](http://localhost:5173)
+   - Backend API: [http://localhost:3000/api](http://localhost:3000/api)
+   - Swagger Docs: [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
 
 ## Local Development
 
 ### Backend
 
-`cd backend`
-
-`npm install`
-
-`npm run start:dev`
+```bash
+cd backend
+npm install
+npm run start:dev
+```
 
 ### Environment Variables
 
@@ -130,6 +134,7 @@ The application automatically seeds the database on first run:
 
 ## Running Tests
 
-`cd backend`
-
-`npm run test`
+```bash
+cd backend
+npm run test
+```
