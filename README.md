@@ -138,3 +138,9 @@ The application automatically seeds the database on first run:
 cd backend
 npm run test
 ```
+
+### Running tests with details
+
+```bash
+npm run test -- --verbose
+```

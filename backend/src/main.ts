@@ -37,8 +37,9 @@ async function bootstrap(): Promise<void> {
   const port = process.env.PORT ?? 3000;
   await app.listen(port);
 
-  logger.log(`Application is running on: http://localhost:${port}/api`);
-  logger.log(`Swagger docs: http://localhost:${port}/api/docs`);
+  logger.log(`✅ Server is running on: http://localhost:${port}/api`);
+  logger.log(`📄 Swagger UI: http://localhost:${port}/api/docs`);
+  logger.log(`🗄️  Database connected and seeded successfully`);
 }
 
 void bootstrap();
