@@ -69,19 +69,19 @@ npm run start:dev
 
 ## API Endpoints
 
-| Method | Endpoint              | Auth | Description       |
-| ------ | --------------------- | ---- | ----------------- |
-| POST   | /api/auth/register    | No   | Register user     |
-| POST   | /api/auth/login       | No   | Login user        |
-| GET    | /api/events           | Yes  | Get public events |
-| GET    | /api/events/:id       | Yes  | Get event by id   |
-| POST   | /api/events           | Yes  | Create event      |
-| PATCH  | /api/events/:id       | Yes  | Update event      |
-| DELETE | /api/events/:id       | Yes  | Delete event      |
-| POST   | /api/events/:id/join  | Yes  | Join event        |
-| POST   | /api/events/:id/leave | Yes  | Leave event       |
-| GET    | /api/users/me/events  | Yes  | Get user events   |
-| GET    | /api/health           | No   | Health check      |
+| Method | Endpoint              | Auth | Description                                          |
+| ------ | --------------------- | ---- | ---------------------------------------------------- |
+| POST   | /api/auth/register    | No   | Register new user                                    |
+| POST   | /api/auth/login       | No   | Login user, returns JWT token                        |
+| GET    | /api/events           | Yes  | Get all public events                                |
+| GET    | /api/events/:id       | Yes  | Get single event by ID                               |
+| POST   | /api/events           | Yes  | Create new event                                     |
+| PATCH  | /api/events/:id       | Yes  | Update event (organizer only)                        |
+| DELETE | /api/events/:id       | Yes  | Delete event (organizer only)                        |
+| POST   | /api/events/:id/join  | Yes  | Join event as participant                            |
+| POST   | /api/events/:id/leave | Yes  | Leave event as participant                           |
+| GET    | /api/users/me/events  | Yes  | Get current user's events (organizer or participant) |
+| GET    | /api/health           | No   | Health check                                         |
 
 ## Project Structure
 
