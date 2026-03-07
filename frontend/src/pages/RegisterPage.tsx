@@ -40,10 +40,13 @@ export const RegisterPage = () => {
 
   useEffect(() => {
     if (user) navigate("/events", { replace: true });
+  }, [user, navigate]);
+
+  useEffect(() => {
     return () => {
       dispatch(clearError());
     };
-  }, [user, navigate, dispatch]);
+  }, [dispatch]);
 
   const onSubmit = (data: RegisterFormData) => {
     dispatch(

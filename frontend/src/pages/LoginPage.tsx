@@ -32,10 +32,13 @@ export const LoginPage = () => {
 
   useEffect(() => {
     if (user) navigate("/events", { replace: true });
+  }, [user, navigate]);
+
+  useEffect(() => {
     return () => {
       dispatch(clearError());
     };
-  }, [user, navigate, dispatch]);
+  }, [dispatch]);
 
   const onSubmit = (data: LoginFormData) => {
     dispatch(login(data));
