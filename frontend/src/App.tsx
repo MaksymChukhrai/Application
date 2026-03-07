@@ -1,35 +1,40 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Provider } from "react-redux";
+import { store } from "./store";
+import { Layout } from "./components/layout/Layout";
+import { ProtectedRoute } from "./components/common/ProtectedRoute";
+import { LoginPage } from "./pages/LoginPage";
+import { RegisterPage } from "./pages/RegisterPage";
+import { EventsPage } from "./pages/EventsPage";
+import { EventDetailPage } from "./pages/EventDetailPage";
+import { CreateEventPage } from "./pages/CreateEventPage";
+import { EditEventPage } from "./pages/EditEventPage";
+import { MyEventsPage } from "./pages/MyEventsPage";
 
-function App() {
-  const [count, setCount] = useState(0)
-
+const App = () => {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <Provider store={store}>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
 
-export default App
+            <Route element={<ProtectedRoute />}>
+              <Route path="/events" element={<EventsPage />} />
+              <Route path="/events/create" element={<CreateEventPage />} />
+              <Route path="/events/:id" element={<EventDetailPage />} />
+              <Route path="/events/:id/edit" element={<EditEventPage />} />
+              <Route path="/my-events" element={<MyEventsPage />} />
+            </Route>
+
+            <Route path="/" element={<Navigate to="/events" replace />} />
+            <Route path="*" element={<Navigate to="/events" replace />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </Provider>
+  );
+};
+
+export default App;
