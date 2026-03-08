@@ -66,11 +66,8 @@ export const EventDetailPage = () => {
   }
 
   const isOrganizer = currentUser?.id === event.organizer.id;
-  const isJoined = currentUser
-    ? event.participants.some((p) => p.id === currentUser.id)
-    : false;
-  const isFull =
-    event.capacity !== null && event.participantsCount >= event.capacity;
+  const isJoined = event.isJoined;
+  const isFull = event.isFull;
 
   const handleJoinLeave = async () => {
     if (!currentUser) {
@@ -123,7 +120,7 @@ export const EventDetailPage = () => {
             <p className="text-sm text-gray-500">
               Organized by{" "}
               <span className="font-medium text-gray-700">
-                {event.organizer.name}
+                {event.organizer.firstName} {event.organizer.lastName}
               </span>
             </p>
           </div>
@@ -164,7 +161,7 @@ export const EventDetailPage = () => {
           <div className="flex items-center gap-2">
             <span>👥</span>
             <span>
-              {event.participantsCount}
+              {event.participantCount}
               {event.capacity !== null ? ` / ${event.capacity}` : ""}{" "}
               participants
             </span>
@@ -202,7 +199,7 @@ export const EventDetailPage = () => {
 
         <div className="border-t border-gray-100 pt-4">
           <h2 className="text-base font-semibold text-gray-900 mb-3">
-            Participants ({event.participantsCount})
+            Participants ({event.participantCount})
           </h2>
           <ParticipantList participants={event.participants} />
         </div>

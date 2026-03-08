@@ -96,18 +96,14 @@ const eventsSlice = createSlice({
       state,
       action: PayloadAction<{ eventId: string; userId: string }>,
     ) {
-      const { eventId, userId } = action.payload;
+      const { eventId } = action.payload;
       const item = state.items.find((e) => e.id === eventId);
       if (item) {
-        item.participantsCount += 1;
+        item.participantCount += 1;
         item.isJoined = true;
-        item.participants = [
-          ...item.participants,
-          { id: userId, name: "", email: "" },
-        ];
       }
       if (state.selectedEvent?.id === eventId) {
-        state.selectedEvent.participantsCount += 1;
+        state.selectedEvent.participantCount += 1;
         state.selectedEvent.isJoined = true;
       }
     },
@@ -115,17 +111,16 @@ const eventsSlice = createSlice({
       state,
       action: PayloadAction<{ eventId: string; userId: string }>,
     ) {
-      const { eventId, userId } = action.payload;
+      const { eventId } = action.payload;
       const item = state.items.find((e) => e.id === eventId);
       if (item) {
-        item.participantsCount = Math.max(0, item.participantsCount - 1);
+        item.participantCount = Math.max(0, item.participantCount - 1);
         item.isJoined = false;
-        item.participants = item.participants.filter((p) => p.id !== userId);
       }
       if (state.selectedEvent?.id === eventId) {
-        state.selectedEvent.participantsCount = Math.max(
+        state.selectedEvent.participantCount = Math.max(
           0,
-          state.selectedEvent.participantsCount - 1,
+          state.selectedEvent.participantCount - 1,
         );
         state.selectedEvent.isJoined = false;
       }

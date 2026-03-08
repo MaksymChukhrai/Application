@@ -2,13 +2,10 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../store";
 import { fetchEvents } from "../store/events.slice";
-import { useCurrentUser } from "../hooks/useCurrentUser";
 import { EventList } from "../components/events/EventList";
-import type { Event } from "../types";
 
 export const EventsPage = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const currentUser = useCurrentUser();
   const { items, isLoading, error } = useSelector(
     (state: RootState) => state.events,
   );
@@ -18,14 +15,7 @@ export const EventsPage = () => {
     dispatch(fetchEvents());
   }, [dispatch]);
 
-  const eventsWithJoined: Event[] = items.map((event) => ({
-    ...event,
-    isJoined: currentUser
-      ? event.participants.some((p) => p.id === currentUser.id)
-      : false,
-  }));
-
-  const filtered = eventsWithJoined.filter((event) =>
+  const filtered = items.filter((event) =>
     event.title.toLowerCase().includes(search.toLowerCase()),
   );
 

@@ -24,7 +24,11 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError<ApiError>) => {
-    if (error.response?.status === 401) {
+    const isAuthEndpoint =
+      error.config?.url?.includes("/auth/login") ||
+      error.config?.url?.includes("/auth/register");
+
+    if (error.response?.status === 401 && !isAuthEndpoint) {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("user");
       window.location.href = "/login";

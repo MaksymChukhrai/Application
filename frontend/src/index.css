@@ -1,1 +1,24 @@
 @import "tailwindcss";
+@import "tailwindcss";
+
+.rbc-time-view .rbc-time-header {
+  padding-right: 0 !important;
+}
+
+.rbc-time-view .rbc-time-header-content {
+  border-left: none;
+}
+
+.rbc-time-view {
+  overflow: hidden;
+}
+
+.rbc-time-content {
+  overflow-y: auto;
+}
+
+.rbc-header {
+  padding: 8px 4px;
+  font-weight: 500;
+  font-size: 13px;
+}

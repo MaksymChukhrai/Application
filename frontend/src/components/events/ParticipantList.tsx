@@ -4,13 +4,8 @@ interface ParticipantListProps {
   participants: Participant[];
 }
 
-const getInitials = (name: string): string => {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
+const getInitials = (firstName: string, lastName: string): string => {
+  return `${firstName[0] ?? ""}${lastName[0] ?? ""}`.toUpperCase();
 };
 
 export const ParticipantList = ({ participants }: ParticipantListProps) => {
@@ -27,11 +22,11 @@ export const ParticipantList = ({ participants }: ParticipantListProps) => {
       {participants.map((participant) => (
         <li key={participant.id} className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-semibold shrink-0">
-            {participant.name ? getInitials(participant.name) : "?"}
+            {getInitials(participant.firstName, participant.lastName)}
           </div>
           <div className="flex flex-col">
             <span className="text-sm font-medium text-gray-800">
-              {participant.name || "Unknown"}
+              {participant.firstName} {participant.lastName}
             </span>
             <span className="text-xs text-gray-400">{participant.email}</span>
           </div>

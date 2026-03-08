@@ -21,10 +21,8 @@ export const EventCard = ({ event }: EventCardProps) => {
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
 
-  const isFull =
-    event.capacity !== null && event.participantsCount >= event.capacity;
-
-  const isJoined = event.isJoined ?? false;
+  const isFull = event.isFull;
+  const isJoined = event.isJoined;
 
   const handleJoinLeave = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -77,7 +75,7 @@ export const EventCard = ({ event }: EventCardProps) => {
         <div className="flex items-center gap-2">
           <span>👥</span>
           <span>
-            {event.participantsCount}
+            {event.participantCount}
             {event.capacity !== null ? ` / ${event.capacity}` : ""} participants
           </span>
         </div>

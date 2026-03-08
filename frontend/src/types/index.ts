@@ -15,13 +15,15 @@ export interface AuthResponse {
 
 export interface Participant {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
 }
 
 export interface Organizer {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
 }
 
@@ -33,10 +35,13 @@ export interface Event {
   location: string;
   capacity: number | null;
   visibility: "public" | "private";
-  participantsCount: number;
+  participantCount: number;
+  isFull: boolean;
+  isJoined: boolean;
   organizer: Organizer;
   participants: Participant[];
-  isJoined?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ApiError {

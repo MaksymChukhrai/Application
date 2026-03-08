@@ -1,11 +1,11 @@
-import { useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useDispatch, useSelector } from "react-redux";
-import type { AppDispatch, RootState } from "../store";
-import { register as registerUser, clearError } from "../store/auth.slice";
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "../store";
+import { register as registerUser } from "../store/auth.slice";
 import { Button } from "../components/common/Button";
 
 const registerSchema = z
@@ -26,9 +26,8 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 export const RegisterPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { isLoading, error, user } = useSelector(
-    (state: RootState) => state.auth,
-  );
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const {
     register,
@@ -38,18 +37,10 @@ export const RegisterPage = () => {
     resolver: zodResolver(registerSchema),
   });
 
-  useEffect(() => {
-    if (user) navigate("/events", { replace: true });
-  }, [user, navigate]);
-
-  useEffect(() => {
-    return () => {
-      dispatch(clearError());
-    };
-  }, [dispatch]);
-
-  const onSubmit = (data: RegisterFormData) => {
-    dispatch(
+  const onSubmit = async (data: RegisterFormData) => {
+    setIsLoading(true);
+    setError(null);
+    const result = await dispatch(
       registerUser({
         firstName: data.firstName,
         lastName: data.lastName,
@@ -57,6 +48,12 @@ export const RegisterPage = () => {
         password: data.password,
       }),
     );
+    if (registerUser.fulfilled.match(result)) {
+      navigate("/events", { replace: true });
+    } else {
+      setError("Registration failed. Email may already be in use.");
+    }
+    setIsLoading(false);
   };
 
   return (

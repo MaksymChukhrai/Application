@@ -1,11 +1,11 @@
-import { useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useDispatch, useSelector } from "react-redux";
-import type { AppDispatch, RootState } from "../store";
-import { login, clearError } from "../store/auth.slice";
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "../store";
+import { login } from "../store/auth.slice";
 import { Button } from "../components/common/Button";
 
 const loginSchema = z.object({
@@ -18,9 +18,8 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export const LoginPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { isLoading, error, user } = useSelector(
-    (state: RootState) => state.auth,
-  );
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const {
     register,
@@ -30,18 +29,16 @@ export const LoginPage = () => {
     resolver: zodResolver(loginSchema),
   });
 
-  useEffect(() => {
-    if (user) navigate("/events", { replace: true });
-  }, [user, navigate]);
-
-  useEffect(() => {
-    return () => {
-      dispatch(clearError());
-    };
-  }, [dispatch]);
-
-  const onSubmit = (data: LoginFormData) => {
-    dispatch(login(data));
+  const onSubmit = async (data: LoginFormData) => {
+    setIsLoading(true);
+    setError(null);
+    const result = await dispatch(login(data));
+    if (login.fulfilled.match(result)) {
+      navigate("/events", { replace: true });
+    } else {
+      setError("Invalid email or password");
+    }
+    setIsLoading(false);
   };
 
   return (
