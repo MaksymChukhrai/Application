@@ -132,7 +132,7 @@ export const MyEventsPage = () => {
               >
                 ‹
               </button>
-              <span className="text-base font-semibold text-gray-900 min-w-36 text-center">
+              <span className="text-base font-semibold text-gray-900 min-w-0 text-center truncate max-w-[120px]">
                 {formatHeaderDate()}
               </span>
               <button

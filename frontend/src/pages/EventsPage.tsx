@@ -28,13 +28,36 @@ export const EventsPage = () => {
         </p>
       </div>
 
-      <input
-        type="text"
-        placeholder="Search events..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="border border-gray-300 rounded-lg px-4 py-2 text-sm w-full max-w-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-      />
+      {/* Search input with magnifier icon */}
+      <div className="relative w-full max-w-sm">
+        {/* Search icon */}
+        <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-gray-400"
+            aria-hidden="true"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+        </span>
+
+        <input
+          type="text"
+          placeholder="Search events..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="border border-gray-300 rounded-lg pl-9 pr-4 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+      </div>
 
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
