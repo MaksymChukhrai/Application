@@ -15,7 +15,24 @@ async function bootstrap(): Promise<void> {
   app.useGlobalPipes(validationPipe);
 
   app.enableCors({
-    origin: process.env.FRONTEND_URL ?? 'http://localhost:5173',
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
+      const allowedOrigins: string[] = [
+        'http://localhost:5173',
+        'http://localhost:80',
+        process.env.FRONTEND_URL,
+      ].filter((o): o is string => Boolean(o));
+
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS blocked: ${origin}`));
+      }
+    },
     credentials: true,
   });
 
@@ -31,7 +48,6 @@ async function bootstrap(): Promise<void> {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  // Ensure DataSource is initialized and schema is synchronized before seeding
   const dataSource = app.get(DataSource);
   if (!dataSource.isInitialized) {
     await dataSource.initialize();
