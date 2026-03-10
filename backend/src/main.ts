@@ -31,14 +31,20 @@ async function bootstrap(): Promise<void> {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
+  // Ensure DataSource is initialized and schema is synchronized before seeding
   const dataSource = app.get(DataSource);
+  if (!dataSource.isInitialized) {
+    await dataSource.initialize();
+  }
+
   await runSeed(dataSource);
 
   const port = process.env.PORT ?? 3000;
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 
-  logger.log(`Application is running on: http://localhost:${port}/api`);
-  logger.log(`Swagger docs: http://localhost:${port}/api/docs`);
+  logger.log(`✅ Server is running on: http://localhost:${port}/api`);
+  logger.log(`📄 Swagger UI: http://localhost:${port}/api/docs`);
+  logger.log(`🗄️  Database connected and seeded successfully`);
 }
 
 void bootstrap();

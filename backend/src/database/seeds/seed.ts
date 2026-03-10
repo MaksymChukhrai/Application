@@ -30,11 +30,24 @@ export async function runSeed(dataSource: DataSource): Promise<void> {
 
   await userRepository.save([user1, user2]);
 
+  // Dynamic dates: always in the future relative to seed run date
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(9, 0, 0, 0);
+
+  const inTwoWeeks = new Date();
+  inTwoWeeks.setDate(inTwoWeeks.getDate() + 14);
+  inTwoWeeks.setHours(18, 30, 0, 0);
+
+  const inOneMonth = new Date();
+  inOneMonth.setDate(inOneMonth.getDate() + 30);
+  inOneMonth.setHours(14, 0, 0, 0);
+
   const event1 = eventRepository.create({
-    title: 'Tech Conference 2025',
+    title: 'Tech Conference 2026',
     description:
       'Annual technology conference featuring the latest innovations in AI and machine learning.',
-    date: new Date('2025-11-15T09:00:00.000Z'),
+    date: tomorrow,
     location: 'Convention Center, San Francisco',
     capacity: 500,
     visibility: EventVisibility.PUBLIC,
@@ -46,7 +59,7 @@ export async function runSeed(dataSource: DataSource): Promise<void> {
   const event2 = eventRepository.create({
     title: 'Community Networking Meetup',
     description: 'Connect with local professionals and expand your network.',
-    date: new Date('2025-10-20T18:30:00.000Z'),
+    date: inTwoWeeks,
     location: 'Downtown Coffee Shop',
     capacity: 30,
     visibility: EventVisibility.PUBLIC,
@@ -58,7 +71,7 @@ export async function runSeed(dataSource: DataSource): Promise<void> {
   const event3 = eventRepository.create({
     title: 'Design Workshop',
     description: 'Hands-on workshop covering modern UI/UX design principles.',
-    date: new Date('2025-10-25T14:00:00.000Z'),
+    date: inOneMonth,
     location: 'Creative Space Studio',
     capacity: 20,
     visibility: EventVisibility.PUBLIC,

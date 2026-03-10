@@ -20,33 +20,37 @@ A full-stack Event Management application built with NestJS, React, and PostgreS
 
 1. Clone the repository:
 
-`git clone https://github.com/MaksymChukhrai/Application.git`
-
-`cd Application`
+   ```bash
+   git clone https://github.com/MaksymChukhrai/Application.git
+   cd Application
+   ```
 
 1. Create environment file:
 
-`cp .env.example .env`
+   ```bash
+   cp .env.example .env
+   ```
 
 1. Start all services:
 
-`docker-compose up --build`
+   ```bash
+   docker-compose up --build
+   ```
 
-1. Access the application:
-
-- Frontend: <http://localhost:5173>
-- Backend API: <http://localhost:3000/api>
-- Swagger Docs: <http://localhost:3000/api/docs>
+4. Access the application:
+   - Frontend: [http://localhost:5173](http://localhost:5173)
+   - Backend API: [http://localhost:3000/api](http://localhost:3000/api)
+   - Swagger Docs: [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
 
 ## Local Development
 
 ### Backend
 
-`cd backend`
-
-`npm install`
-
-`npm run start:dev`
+```bash
+cd backend
+npm install
+npm run start:dev
+```
 
 ### Environment Variables
 
@@ -65,19 +69,19 @@ A full-stack Event Management application built with NestJS, React, and PostgreS
 
 ## API Endpoints
 
-| Method | Endpoint              | Auth | Description       |
-| ------ | --------------------- | ---- | ----------------- |
-| POST   | /api/auth/register    | No   | Register user     |
-| POST   | /api/auth/login       | No   | Login user        |
-| GET    | /api/events           | Yes  | Get public events |
-| GET    | /api/events/:id       | Yes  | Get event by id   |
-| POST   | /api/events           | Yes  | Create event      |
-| PATCH  | /api/events/:id       | Yes  | Update event      |
-| DELETE | /api/events/:id       | Yes  | Delete event      |
-| POST   | /api/events/:id/join  | Yes  | Join event        |
-| POST   | /api/events/:id/leave | Yes  | Leave event       |
-| GET    | /api/users/me/events  | Yes  | Get user events   |
-| GET    | /api/health           | No   | Health check      |
+| Method | Endpoint              | Auth | Description                                          |
+| ------ | --------------------- | ---- | ---------------------------------------------------- |
+| POST   | /api/auth/register    | No   | Register new user                                    |
+| POST   | /api/auth/login       | No   | Login user, returns JWT token                        |
+| GET    | /api/events           | Yes  | Get all public events                                |
+| GET    | /api/events/:id       | Yes  | Get single event by ID                               |
+| POST   | /api/events           | Yes  | Create new event                                     |
+| PATCH  | /api/events/:id       | Yes  | Update event (organizer only)                        |
+| DELETE | /api/events/:id       | Yes  | Delete event (organizer only)                        |
+| POST   | /api/events/:id/join  | Yes  | Join event as participant                            |
+| POST   | /api/events/:id/leave | Yes  | Leave event as participant                           |
+| GET    | /api/users/me/events  | Yes  | Get current user's events (organizer or participant) |
+| GET    | /api/health           | No   | Health check                                         |
 
 ## Project Structure
 
@@ -130,6 +134,13 @@ The application automatically seeds the database on first run:
 
 ## Running Tests
 
-`cd backend`
+```bash
+cd backend
+npm run test
+```
 
-`npm run test`
+### Running tests with details
+
+```bash
+npm run test -- --verbose
+```

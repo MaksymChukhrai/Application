@@ -25,7 +25,7 @@ import { Event } from './events/entities/event.entity';
         password: configService.getOrThrow<string>('DB_PASSWORD'),
         database: configService.getOrThrow<string>('DB_NAME'),
         entities: [User, Event],
-        synchronize: configService.get<string>('NODE_ENV') !== 'production',
+        synchronize: true,
         logging: configService.get<string>('NODE_ENV') === 'development',
       }),
       inject: [ConfigService],
