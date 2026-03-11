@@ -25,13 +25,13 @@ A full-stack Event Management application built with NestJS, React, and PostgreS
    cd Application
    ```
 
-1. Create environment file:
+2. Create environment file:
 
    ```bash
    cp .env.example .env
    ```
 
-1. Start all services:
+3. Start all services:
 
    ```bash
    docker-compose up --build
