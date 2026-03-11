@@ -9,6 +9,7 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  Req,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -16,40 +17,54 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+import { Request } from 'express';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { EventResponseDto } from './dto/event-response.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '../common/guards/optional-jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity';
+
+interface JwtUserPayload {
+  id: string;
+  email: string;
+}
 
 @ApiTags('events')
 @Controller('events')
 export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
+  // Public endpoint — auth optional.
+  // isJoined is personalized when valid token provided, false for anonymous.
   @Get()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(OptionalJwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get all public events' })
+  @ApiOperation({ summary: 'Get all public events (auth optional)' })
   @ApiResponse({ status: 200, type: [EventResponseDto] })
-  async findAll(@CurrentUser() user: User): Promise<EventResponseDto[]> {
-    return this.eventsService.findAllPublic(user?.id);
+  async findAll(@Req() req: Request): Promise<EventResponseDto[]> {
+    const userId = (req.user as JwtUserPayload | null)?.id ?? undefined;
+    return this.eventsService.findAllPublic(userId);
   }
 
+  // Public endpoint — auth optional.
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(OptionalJwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get event by id' })
+  @ApiOperation({ summary: 'Get event by id (auth optional)' })
   @ApiResponse({ status: 200, type: EventResponseDto })
   @ApiResponse({ status: 404, description: 'Event not found' })
   async findOne(
     @Param('id') id: string,
-    @CurrentUser() user: User,
+    @Req() req: Request,
   ): Promise<EventResponseDto> {
-    return this.eventsService.findById(id, user?.id);
+    const userId = (req.user as JwtUserPayload | null)?.id ?? undefined;
+    return this.eventsService.findById(id, userId);
   }
+
+  // Protected endpoints below — valid JWT required.
 
   @Post()
   @UseGuards(JwtAuthGuard)
@@ -66,7 +81,7 @@ export class EventsController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update event by id' })
+  @ApiOperation({ summary: 'Update event by id (organizer only)' })
   @ApiResponse({ status: 200, type: EventResponseDto })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 404, description: 'Event not found' })
@@ -82,7 +97,7 @@ export class EventsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete event by id' })
+  @ApiOperation({ summary: 'Delete event by id (organizer only)' })
   @ApiResponse({ status: 204, description: 'Event deleted' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 404, description: 'Event not found' })
