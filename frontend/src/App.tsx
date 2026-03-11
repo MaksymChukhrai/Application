@@ -20,10 +20,13 @@ const App = () => {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
 
+            {/* Public routes — no auth required */}
+            <Route path="/events" element={<EventsPage />} />
+            <Route path="/events/:id" element={<EventDetailPage />} />
+
+            {/* Protected routes — auth required */}
             <Route element={<ProtectedRoute />}>
-              <Route path="/events" element={<EventsPage />} />
               <Route path="/events/create" element={<CreateEventPage />} />
-              <Route path="/events/:id" element={<EventDetailPage />} />
               <Route path="/events/:id/edit" element={<EditEventPage />} />
               <Route path="/my-events" element={<MyEventsPage />} />
             </Route>
