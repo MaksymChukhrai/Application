@@ -97,3 +97,9 @@
     margin-right: 0 !important;
   }
 }
+
+@media screen and (min-width: 424px) {
+  .relative.w-full.max-w-sm {
+    max-width: 389.33px;
+  }
+}

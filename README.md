@@ -73,8 +73,8 @@ npm run start:dev
 | ------ | --------------------- | ---- | ---------------------------------------------------- |
 | POST   | /api/auth/register    | No   | Register new user                                    |
 | POST   | /api/auth/login       | No   | Login user, returns JWT token                        |
-| GET    | /api/events           | Yes  | Get all public events                                |
-| GET    | /api/events/:id       | Yes  | Get single event by ID                               |
+| GET    | /api/events           | No   | Get all public events                                |
+| GET    | /api/events/:id       | No   | Get single event by ID                               |
 | POST   | /api/events           | Yes  | Create new event                                     |
 | PATCH  | /api/events/:id       | Yes  | Update event (organizer only)                        |
 | DELETE | /api/events/:id       | Yes  | Delete event (organizer only)                        |
@@ -82,6 +82,10 @@ npm run start:dev
 | POST   | /api/events/:id/leave | Yes  | Leave event as participant                           |
 | GET    | /api/users/me/events  | Yes  | Get current user's events (organizer or participant) |
 | GET    | /api/health           | No   | Health check                                         |
+
+`GET /api/events` and `GET /api/events/:id` accept an optional Bearer token.
+When provided, the response includes a personalized `isJoined` field per event.
+Unauthenticated requests return the same data with `isJoined: false`.
 
 ## Project Structure
 
@@ -144,3 +148,11 @@ npm run test
 ```bash
 npm run test -- --verbose
 ```
+
+## Live Demo (Railway)
+
+The application is deployed on [Railway](https://railway.com) as a monorepo with separate services for backend, frontend, and PostgreSQL.
+
+- [Live project page](https://frontend-production-8050.up.railway.app)
+- [Health Check](https://application-production-ab9b.up.railway.app/api/health)
+- [Swagger Docs](https://application-production-ab9b.up.railway.app/api/docs)
