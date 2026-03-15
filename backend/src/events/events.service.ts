@@ -9,15 +9,18 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Event, EventVisibility } from './entities/event.entity';
 import { User } from '../users/entities/user.entity';
+import { Tag } from '../tags/tag.entity';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { EventResponseDto } from './dto/event-response.dto';
+import { TagsService } from '../tags/tags.service';
 
 @Injectable()
 export class EventsService {
   constructor(
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
+    private readonly tagsService: TagsService,
   ) {}
 
   private toResponseDto(
@@ -54,18 +57,44 @@ export class EventsService {
       isJoined: currentUserId
         ? (event.participants?.some((p) => p.id === currentUserId) ?? false)
         : false,
+      tags: event.tags ?? [],
       createdAt: event.createdAt,
       updatedAt: event.updatedAt,
     };
   }
 
-  async findAllPublic(currentUserId?: string): Promise<EventResponseDto[]> {
-    const events = await this.eventRepository.find({
-      where: { visibility: EventVisibility.PUBLIC },
-      relations: ['organizer', 'participants'],
-      order: { date: 'ASC' },
-    });
+  async findAllPublic(
+    currentUserId?: string,
+    tagIds?: string[],
+  ): Promise<EventResponseDto[]> {
+    const qb = this.eventRepository
+      .createQueryBuilder('event')
+      .leftJoinAndSelect('event.organizer', 'organizer')
+      .leftJoinAndSelect('event.participants', 'participants')
+      .leftJoinAndSelect('event.tags', 'tags')
+      .where('event.visibility = :visibility', {
+        visibility: EventVisibility.PUBLIC,
+      })
+      .orderBy('event.date', 'ASC');
 
+    // Filter by tags if provided — event must have ALL specified tags
+    if (tagIds && tagIds.length > 0) {
+      qb.andWhere((qb2) => {
+        const subQuery = qb2
+          .subQuery()
+          .select('et.eventId')
+          .from('event_tags', 'et')
+          .where('et.tagId IN (:...tagIds)')
+          .groupBy('et.eventId')
+          .having('COUNT(DISTINCT et.tagId) = :tagCount')
+          .getQuery();
+        return `event.id IN ${subQuery}`;
+      })
+        .setParameter('tagIds', tagIds)
+        .setParameter('tagCount', tagIds.length);
+    }
+
+    const events = await qb.getMany();
     return events.map((event) => this.toResponseDto(event, currentUserId));
   }
 
@@ -75,7 +104,7 @@ export class EventsService {
   ): Promise<EventResponseDto> {
     const event = await this.eventRepository.findOne({
       where: { id },
-      relations: ['organizer', 'participants'],
+      relations: ['organizer', 'participants', 'tags'],
     });
 
     if (!event) {
@@ -90,6 +119,7 @@ export class EventsService {
       .createQueryBuilder('event')
       .leftJoinAndSelect('event.organizer', 'organizer')
       .leftJoinAndSelect('event.participants', 'participants')
+      .leftJoinAndSelect('event.tags', 'tags')
       .where('organizer.id = :userId', { userId })
       .orWhere((qb) => {
         const subQuery = qb
@@ -117,6 +147,15 @@ export class EventsService {
       throw new BadRequestException('Event date must be in the future');
     }
 
+    // Resolve tagIds to Tag entities
+    let tags: Tag[] = [];
+    if (dto.tagIds && dto.tagIds.length > 0) {
+      tags = await this.tagsService.findByIds(dto.tagIds);
+      if (tags.length !== dto.tagIds.length) {
+        throw new BadRequestException('One or more tag IDs are invalid');
+      }
+    }
+
     const event = this.eventRepository.create({
       title: dto.title,
       description: dto.description,
@@ -127,13 +166,14 @@ export class EventsService {
       organizer,
       organizerId: organizer.id,
       participants: [],
+      tags,
     });
 
     const saved = await this.eventRepository.save(event);
 
     const full = await this.eventRepository.findOne({
       where: { id: saved.id },
-      relations: ['organizer', 'participants'],
+      relations: ['organizer', 'participants', 'tags'],
     });
 
     return this.toResponseDto(full!, organizer.id);
@@ -146,7 +186,7 @@ export class EventsService {
   ): Promise<EventResponseDto> {
     const event = await this.eventRepository.findOne({
       where: { id },
-      relations: ['organizer', 'participants'],
+      relations: ['organizer', 'participants', 'tags'],
     });
 
     if (!event) {
@@ -171,8 +211,28 @@ export class EventsService {
     if (dto.capacity !== undefined) event.capacity = dto.capacity;
     if (dto.visibility !== undefined) event.visibility = dto.visibility;
 
+    // Update tags if tagIds provided
+    if (dto.tagIds !== undefined) {
+      if (dto.tagIds.length === 0) {
+        event.tags = [];
+      } else {
+        const tags = await this.tagsService.findByIds(dto.tagIds);
+        if (tags.length !== dto.tagIds.length) {
+          throw new BadRequestException('One or more tag IDs are invalid');
+        }
+        event.tags = tags;
+      }
+    }
+
     const updated = await this.eventRepository.save(event);
-    return this.toResponseDto(updated, userId);
+
+    // Reload to get fresh relations after save
+    const full = await this.eventRepository.findOne({
+      where: { id: updated.id },
+      relations: ['organizer', 'participants', 'tags'],
+    });
+
+    return this.toResponseDto(full!, userId);
   }
 
   async delete(id: string, userId: string): Promise<void> {
@@ -194,7 +254,7 @@ export class EventsService {
   async joinEvent(eventId: string, user: User): Promise<EventResponseDto> {
     const event = await this.eventRepository.findOne({
       where: { id: eventId },
-      relations: ['organizer', 'participants'],
+      relations: ['organizer', 'participants', 'tags'],
     });
 
     if (!event) {
@@ -223,7 +283,7 @@ export class EventsService {
   async leaveEvent(eventId: string, userId: string): Promise<EventResponseDto> {
     const event = await this.eventRepository.findOne({
       where: { id: eventId },
-      relations: ['organizer', 'participants'],
+      relations: ['organizer', 'participants', 'tags'],
     });
 
     if (!event) {

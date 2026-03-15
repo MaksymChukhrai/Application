@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   UseGuards,
   HttpCode,
   HttpStatus,
@@ -16,6 +17,7 @@ import {
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { Request } from 'express';
 import { EventsService } from './events.service';
@@ -43,10 +45,28 @@ export class EventsController {
   @UseGuards(OptionalJwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get all public events (auth optional)' })
+  @ApiQuery({
+    name: 'tags',
+    required: false,
+    description: 'Comma-separated tag IDs to filter by (e.g. id1,id2)',
+    example: 'uuid-1,uuid-2',
+  })
   @ApiResponse({ status: 200, type: [EventResponseDto] })
-  async findAll(@Req() req: Request): Promise<EventResponseDto[]> {
+  async findAll(
+    @Req() req: Request,
+    @Query('tags') tagsQuery?: string,
+  ): Promise<EventResponseDto[]> {
     const userId = (req.user as JwtUserPayload | null)?.id ?? undefined;
-    return this.eventsService.findAllPublic(userId);
+
+    // Parse comma-separated tag IDs: "id1,id2,id3" → ["id1", "id2", "id3"]
+    const tagIds = tagsQuery
+      ? tagsQuery
+          .split(',')
+          .map((id) => id.trim())
+          .filter(Boolean)
+      : undefined;
+
+    return this.eventsService.findAllPublic(userId, tagIds);
   }
 
   // Public endpoint — auth optional.

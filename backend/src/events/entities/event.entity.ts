@@ -10,6 +10,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { Tag } from '../../tags/tag.entity';
 
 export enum EventVisibility {
   PUBLIC = 'public',
@@ -57,6 +58,15 @@ export class Event {
     inverseJoinColumn: { name: 'userId', referencedColumnName: 'id' },
   })
   participants: User[];
+
+  // Many-to-many: event can have up to 5 tags
+  @ManyToMany(() => Tag, { eager: false, cascade: true })
+  @JoinTable({
+    name: 'event_tags',
+    joinColumn: { name: 'eventId', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'tagId', referencedColumnName: 'id' },
+  })
+  tags: Tag[];
 
   @CreateDateColumn()
   createdAt: Date;
