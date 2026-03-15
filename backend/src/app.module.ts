@@ -6,8 +6,10 @@ import { EventsModule } from './events/events.module';
 import { UsersModule } from './users/users.module';
 import { HealthModule } from './health/health.module';
 import { SeedModule } from './database/seeds/seed.module';
+import { TagsModule } from './tags/tags.module';
 import { User } from './users/entities/user.entity';
 import { Event } from './events/entities/event.entity';
+import { Tag } from './tags/tag.entity';
 
 @Module({
   imports: [
@@ -24,7 +26,7 @@ import { Event } from './events/entities/event.entity';
         username: configService.getOrThrow<string>('DB_USERNAME'),
         password: configService.getOrThrow<string>('DB_PASSWORD'),
         database: configService.getOrThrow<string>('DB_NAME'),
-        entities: [User, Event],
+        entities: [User, Event, Tag], // added Tag
         synchronize: true,
         logging: configService.get<string>('NODE_ENV') === 'development',
       }),
@@ -35,6 +37,7 @@ import { Event } from './events/entities/event.entity';
     UsersModule,
     HealthModule,
     SeedModule,
+    TagsModule, // added
   ],
 })
 export class AppModule {}

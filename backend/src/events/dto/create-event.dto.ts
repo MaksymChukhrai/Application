@@ -7,6 +7,9 @@ import {
   IsInt,
   Min,
   IsEnum,
+  IsArray,
+  IsUUID,
+  ArrayMaxSize,
 } from 'class-validator';
 import { EventVisibility } from '../entities/event.entity';
 
@@ -43,4 +46,15 @@ export class CreateEventDto {
   @IsEnum(EventVisibility)
   @IsOptional()
   visibility?: EventVisibility;
+
+  @ApiPropertyOptional({
+    example: ['uuid-1', 'uuid-2'],
+    description: 'Array of tag IDs (max 5)',
+    type: [String],
+  })
+  @IsArray()
+  @IsUUID('4', { each: true })
+  @ArrayMaxSize(5)
+  @IsOptional()
+  tagIds?: string[];
 }
