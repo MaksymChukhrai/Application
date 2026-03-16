@@ -20,7 +20,6 @@ export const Navbar = () => {
 
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // --- Lock body scroll when menu is open ---
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
     return () => {
@@ -28,7 +27,6 @@ export const Navbar = () => {
     };
   }, [menuOpen]);
 
-  // --- Close menu on Escape key ---
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === "Escape") setMenuOpen(false);
   }, []);
@@ -46,13 +44,11 @@ export const Navbar = () => {
     navigate("/login");
   };
 
-  // --- Desktop NavLink classes ---
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     `flex items-center gap-1.5 text-sm font-medium transition-colors duration-150 ${
       isActive ? "text-indigo-600" : "text-gray-600 hover:text-gray-900"
     }`;
 
-  // --- Mobile burger NavLink classes ---
   const burgerLinkClass = ({ isActive }: { isActive: boolean }) =>
     `burger-nav-link ${isActive ? "active" : ""}`;
 
@@ -94,6 +90,15 @@ export const Navbar = () => {
                     />
                     My Events
                   </NavLink>
+
+                  {/* ── Stage #2: AI Assistant ── */}
+                  <NavLink to="/ai-assistant" className={navLinkClass}>
+                    <span className="text-base leading-none" aria-hidden="true">
+                      🤖
+                    </span>
+                    AI Assistant
+                  </NavLink>
+                  {/* ─────────────────────────── */}
 
                   {/* Create Event */}
                   <NavLink to="/events/create" className="flex items-center">
@@ -145,7 +150,7 @@ export const Navbar = () => {
               )}
             </nav>
 
-            {/* ── Mobile: burger button (visible < md) ── */}
+            {/* ── Mobile: burger button ── */}
             <button
               className={`burger-icon md:!hidden ${menuOpen ? "active" : ""}`}
               onClick={() => setMenuOpen((prev) => !prev)}
@@ -173,7 +178,7 @@ export const Navbar = () => {
         className={`burger-menu md:hidden ${menuOpen ? "open" : ""}`}
         aria-label="Mobile navigation"
       >
-        {/* Close button (X) inside panel */}
+        {/* Close button */}
         <button
           className="burger-close-btn"
           onClick={closeMenu}
@@ -204,6 +209,19 @@ export const Navbar = () => {
               My Events
             </NavLink>
 
+            {/* ── Stage #2: AI Assistant ── */}
+            <NavLink
+              to="/ai-assistant"
+              className={burgerLinkClass}
+              onClick={closeMenu}
+            >
+              <span className="text-base leading-none" aria-hidden="true">
+                🤖
+              </span>
+              AI Assistant
+            </NavLink>
+            {/* ─────────────────────────── */}
+
             {/* Create Event */}
             <NavLink
               to="/events/create"
@@ -230,7 +248,6 @@ export const Navbar = () => {
           </>
         ) : (
           <>
-            {/* Guest links */}
             <NavLink
               to="/login"
               className={burgerLinkClass}

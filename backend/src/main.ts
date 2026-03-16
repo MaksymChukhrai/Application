@@ -21,6 +21,7 @@ async function bootstrap(): Promise<void> {
     ) => {
       const allowedOrigins: string[] = [
         'http://localhost:5173',
+        'http://localhost:3000',
         'http://localhost:80',
         process.env.FRONTEND_URL,
       ].filter((o): o is string => Boolean(o));

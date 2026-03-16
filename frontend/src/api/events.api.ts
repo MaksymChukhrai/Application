@@ -2,8 +2,11 @@ import apiClient from "./axios.instance";
 import type { Event, CreateEventPayload, UpdateEventPayload } from "../types";
 
 export const eventsApi = {
-  getAll: async (): Promise<Event[]> => {
-    const response = await apiClient.get<Event[]>("/events");
+  getAll: async (tagIds?: string[]): Promise<Event[]> => {
+    const params = tagIds && tagIds.length > 0
+      ? { tags: tagIds.join(",") }
+      : undefined;
+    const response = await apiClient.get<Event[]>("/events", { params });
     return response.data;
   },
 

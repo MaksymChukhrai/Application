@@ -10,6 +10,7 @@ interface EventsState {
   isLoading: boolean;
   isActionLoading: boolean;
   error: string | null;
+  activeTagIds: string[];
 }
 
 const initialState: EventsState = {
@@ -19,15 +20,16 @@ const initialState: EventsState = {
   isLoading: false,
   isActionLoading: false,
   error: null,
+  activeTagIds: [],
 };
 
 export const fetchEvents = createAsyncThunk<
   Event[],
-  void,
+  string[] | undefined,
   { rejectValue: string }
->("events/fetchAll", async (_, { rejectWithValue }) => {
+>("events/fetchAll", async (tagIds, { rejectWithValue }) => {
   try {
-    return await eventsApi.getAll();
+    return await eventsApi.getAll(tagIds);
   } catch {
     return rejectWithValue("Failed to load events");
   }
@@ -92,6 +94,14 @@ const eventsSlice = createSlice({
     clearError(state) {
       state.error = null;
     },
+
+    setActiveTagIds(state, action: PayloadAction<string[]>) {
+      state.activeTagIds = action.payload;
+    },
+    clearActiveTagIds(state) {
+      state.activeTagIds = [];
+    },
+
     optimisticJoin(
       state,
       action: PayloadAction<{ eventId: string; userId: string }>,
@@ -195,6 +205,8 @@ const eventsSlice = createSlice({
 export const {
   clearSelectedEvent,
   clearError,
+  setActiveTagIds,
+  clearActiveTagIds,
   optimisticJoin,
   optimisticLeave,
 } = eventsSlice.actions;

@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";                           // ← useEffect
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";                // ← Stage #2
+import type { AppDispatch, RootState } from "../store";                // ← Stage #2
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { eventsApi } from "../api/events.api";
+import { fetchTags } from "../store/tags.slice";                       // ← Stage #2
 import { Button } from "../components/common/Button";
 import { combineDateAndTime } from "../utils/date.utils";
 
@@ -31,8 +34,20 @@ type EventFormData = z.infer<typeof eventSchema>;
 
 export const CreateEventPage = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();                         // ← Stage #2
+  const { items: allTags } = useSelector(                             // ← Stage #2
+    (state: RootState) => state.tags,
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);  // ← Stage #2
+  const [tagError, setTagError] = useState<string | null>(null);       // ← Stage #2
+
+  // ── Stage #2: загружаем теги если ещё не загружены ─
+  useEffect(() => {
+    if (allTags.length === 0) dispatch(fetchTags());
+  }, [dispatch, allTags.length]);
+  // ───────────────────────────────────────────────────
 
   const {
     register,
@@ -42,6 +57,22 @@ export const CreateEventPage = () => {
     resolver: zodResolver(eventSchema),
     defaultValues: { visibility: "public" },
   });
+
+  // ── Stage #2: toggle тега ──────────────────────────
+  const handleTagToggle = (tagId: string) => {
+    setTagError(null);
+    setSelectedTagIds((prev) => {
+      if (prev.includes(tagId)) {
+        return prev.filter((id) => id !== tagId);
+      }
+      if (prev.length >= 5) {
+        setTagError("Maximum 5 tags allowed");
+        return prev;
+      }
+      return [...prev, tagId];
+    });
+  };
+  // ───────────────────────────────────────────────────
 
   const onSubmit = async (data: EventFormData) => {
     setIsLoading(true);
@@ -55,6 +86,7 @@ export const CreateEventPage = () => {
         location: data.location,
         capacity: data.capacity ? parseInt(data.capacity, 10) : null,
         visibility: data.visibility,
+        tagIds: selectedTagIds.length > 0 ? selectedTagIds : undefined, // ← Stage #2
       });
       navigate(`/events/${event.id}`);
     } catch {
@@ -217,6 +249,50 @@ export const CreateEventPage = () => {
               </span>
             </label>
           </div>
+
+          {/* ── Stage #2: Tags multi-select ───────────── */}
+          {allTags.length > 0 && (
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-gray-700">
+                Tags{" "}
+                <span className="text-gray-400 font-normal">
+                  (optional, max 5)
+                </span>
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {allTags.map((tag) => {
+                  const isSelected = selectedTagIds.includes(tag.id);
+                  return (
+                    <button
+                      key={tag.id}
+                      type="button"
+                      onClick={() => handleTagToggle(tag.id)}
+                      className={`
+                        inline-flex items-center px-3 py-1 rounded-full text-xs
+                        font-medium capitalize transition-all duration-150 cursor-pointer
+                        ${
+                          isSelected
+                            ? "bg-indigo-600 text-white shadow-sm"
+                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                        }
+                      `}
+                    >
+                      {tag.name}
+                    </button>
+                  );
+                })}
+              </div>
+              {tagError && (
+                <span className="text-red-500 text-xs">{tagError}</span>
+              )}
+              {selectedTagIds.length > 0 && (
+                <span className="text-gray-400 text-xs">
+                  {selectedTagIds.length} / 5 tags selected
+                </span>
+              )}
+            </div>
+          )}
+          {/* ─────────────────────────────────────────── */}
 
           <div className="flex gap-3 pt-2">
             <Button
