@@ -1,3 +1,4 @@
+// backend/src/database/seeds/seed.ts
 import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from '../../users/entities/user.entity';
@@ -9,23 +10,28 @@ export async function runSeed(dataSource: DataSource): Promise<void> {
   const eventRepository = dataSource.getRepository(Event);
   const tagRepository = dataSource.getRepository(Tag);
 
-  const existingUsers = await userRepository.count();
-  if (existingUsers > 0) {
-    return;
-  }
-
-  // ── Tags ──────────────────────────────────────────────────────────────────
+  // ── Tags (always ensure they exist) ───────────────────────────────────────
   const tagNames = ['tech', 'art', 'business', 'music', 'design'];
   const tags: Tag[] = [];
 
   for (const name of tagNames) {
-    const tag = tagRepository.create({ name });
-    tags.push(await tagRepository.save(tag));
+    let tag = await tagRepository.findOne({ where: { name } });
+    if (!tag) {
+      tag = tagRepository.create({ name });
+      tag = await tagRepository.save(tag);
+    }
+    tags.push(tag);
   }
 
   const [tagTech, tagArt, tagBusiness, tagMusic, tagDesign] = tags;
 
-  // ── Users ─────────────────────────────────────────────────────────────────
+  // ── Users (skip if already exist) ─────────────────────────────────────────
+  const existingUsers = await userRepository.count();
+  if (existingUsers > 0) {
+    console.log('✅ Seed: tags ensured, users already exist — skipping events');
+    return;
+  }
+
   const hashedPassword = await bcrypt.hash('password123', 10);
 
   const user1 = userRepository.create({
@@ -44,7 +50,7 @@ export async function runSeed(dataSource: DataSource): Promise<void> {
 
   await userRepository.save([user1, user2]);
 
-  // ── Dynamic dates ─────────────────────────────────────────────────────────
+  // ── Dynamic dates ──────────────────────────────────────────────────────────
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   tomorrow.setHours(9, 0, 0, 0);
@@ -57,7 +63,7 @@ export async function runSeed(dataSource: DataSource): Promise<void> {
   inOneMonth.setDate(inOneMonth.getDate() + 30);
   inOneMonth.setHours(14, 0, 0, 0);
 
-  // ── Events ────────────────────────────────────────────────────────────────
+  // ── Events ─────────────────────────────────────────────────────────────────
   const event1 = eventRepository.create({
     title: 'Tech Conference 2026',
     description:
@@ -99,4 +105,6 @@ export async function runSeed(dataSource: DataSource): Promise<void> {
   });
 
   await eventRepository.save([event1, event2, event3]);
+
+  console.log('✅ Seed: completed — tags, users, events created');
 }
