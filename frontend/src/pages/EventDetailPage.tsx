@@ -16,6 +16,7 @@ import { Button } from "../components/common/Button";
 import { Modal } from "../components/common/Modal";
 import { ParticipantList } from "../components/events/ParticipantList";
 import { Skeleton } from "../components/common/Skeleton";
+import TagChip from "../components/common/TagChip";             // ← Stage #2
 import { formatEventDateTime } from "../utils/date.utils";
 
 export const EventDetailPage = () => {
@@ -171,6 +172,19 @@ export const EventDetailPage = () => {
             <span className="capitalize">{event.visibility}</span>
           </div>
         </div>
+
+        {/* ── Stage #2: Tags ───────────────────────────── */}
+        {event.tags && event.tags.length > 0 && (
+          <div className="flex flex-col gap-2">
+            <h2 className="text-sm font-semibold text-gray-700">Tags</h2>
+            <div className="flex flex-wrap gap-2">
+              {event.tags.map((tag) => (
+                <TagChip key={tag.id} tag={tag} />
+              ))}
+            </div>
+          </div>
+        )}
+        {/* ─────────────────────────────────────────────── */}
 
         {!isOrganizer && (
           <div>

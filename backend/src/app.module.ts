@@ -10,6 +10,7 @@ import { TagsModule } from './tags/tags.module';
 import { User } from './users/entities/user.entity';
 import { Event } from './events/entities/event.entity';
 import { Tag } from './tags/tag.entity';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -37,7 +38,8 @@ import { Tag } from './tags/tag.entity';
     UsersModule,
     HealthModule,
     SeedModule,
-    TagsModule, // added
+    TagsModule,
+    AiModule,
   ],
 })
 export class AppModule {}

@@ -27,6 +27,11 @@ export interface Organizer {
   email: string;
 }
 
+export interface Tag {
+  id: string;
+  name: string;
+}
+
 export interface Event {
   id: string;
   title: string;
@@ -40,6 +45,7 @@ export interface Event {
   isJoined: boolean;
   organizer: Organizer;
   participants: Participant[];
+  tags: Tag[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -57,6 +63,7 @@ export interface CreateEventPayload {
   location: string;
   capacity?: number | null;
   visibility: "public" | "private";
+  tagIds?: string[];
 }
 
 export interface UpdateEventPayload {
@@ -66,6 +73,15 @@ export interface UpdateEventPayload {
   location?: string;
   capacity?: number | null;
   visibility?: "public" | "private";
+  tagIds?: string[];
 }
 
 export type CalendarView = "month" | "week";
+
+export interface AskAiPayload {
+  question: string;
+}
+
+export interface AskAiResponse {
+  answer: string;
+}
