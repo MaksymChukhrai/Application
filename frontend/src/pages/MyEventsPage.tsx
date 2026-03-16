@@ -21,11 +21,11 @@ const localizer = dateFnsLocalizer({
 
 // ── Stage #2: tag → hex color ──────────────────────────
 const TAG_CALENDAR_COLORS: Record<string, string> = {
-  tech:     "#6366f1",
-  art:      "#a855f7",
+  tech: "#6366f1",
+  art: "#a855f7",
   business: "#3b82f6",
-  music:    "#ec4899",
-  design:   "#14b8a6",
+  music: "#ec4899",
+  design: "#14b8a6",
 };
 
 const DEFAULT_BG = "#6366f1";
@@ -38,12 +38,12 @@ function getEventBg(event: Event): string {
 
 // Legend items — Tailwind bg class + name
 const TAG_LEGEND: Array<{ name: string; colorClass: string }> = [
-  { name: "tech",     colorClass: "bg-indigo-500" },
-  { name: "art",      colorClass: "bg-purple-500" },
-  { name: "business", colorClass: "bg-blue-500"   },
-  { name: "music",    colorClass: "bg-pink-500"   },
-  { name: "design",   colorClass: "bg-teal-500"   },
-  { name: "other",    colorClass: "bg-indigo-500" },
+  { name: "tech", colorClass: "bg-indigo-500" },
+  { name: "art", colorClass: "bg-purple-500" },
+  { name: "business", colorClass: "bg-blue-500" },
+  { name: "music", colorClass: "bg-pink-500" },
+  { name: "design", colorClass: "bg-teal-500" },
+  { name: "other", colorClass: "bg-indigo-500" },
 ];
 // ──────────────────────────────────────────────────────
 
@@ -149,12 +149,13 @@ export const MyEventsPage = () => {
         </div>
       ) : (
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
-
           {/* ── Stage #2: Tag color legend ─────────────── */}
           <div className="flex flex-wrap items-center gap-3 mb-4">
             {TAG_LEGEND.map(({ name, colorClass }) => (
               <div key={name} className="flex items-center gap-1.5">
-                <span className={`w-3 h-3 rounded-full shrink-0 ${colorClass}`}></span>
+                <span
+                  className={`w-3 h-3 rounded-full shrink-0 ${colorClass}`}
+                ></span>
                 <span className="text-xs text-gray-500 capitalize">{name}</span>
               </div>
             ))}
@@ -224,15 +225,18 @@ export const MyEventsPage = () => {
             onSelectEvent={handleSelectEvent}
             style={{ height: 600 }}
             toolbar={false}
-            eventPropGetter={(calEvent) => ({
-              style: {
-                backgroundColor: calEvent.bg,
-                borderColor: calEvent.bg,
-                color: "#ffffff",
-                borderRadius: "4px",
-                fontSize: "12px",
-              },
-            })}
+            eventPropGetter={(calEvent) => {
+              const ev = calEvent as CalendarEvent;
+              return {
+                style: {
+                  backgroundColor: ev.bg,
+                  borderColor: ev.bg,
+                  color: "#ffffff",
+                  borderRadius: "4px",
+                  fontSize: "12px",
+                },
+              };
+            }}
           />
         </div>
       )}
