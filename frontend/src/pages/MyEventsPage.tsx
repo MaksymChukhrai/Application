@@ -26,6 +26,8 @@ const TAG_CALENDAR_COLORS: Record<string, string> = {
   business: "#3b82f6",
   music: "#ec4899",
   design: "#14b8a6",
+  networking: "#f59e0b",
+  blockchain: "#10b981",
 };
 
 const DEFAULT_BG = "#6366f1";
@@ -43,6 +45,8 @@ const TAG_LEGEND: Array<{ name: string; colorClass: string }> = [
   { name: "business", colorClass: "bg-blue-500" },
   { name: "music", colorClass: "bg-pink-500" },
   { name: "design", colorClass: "bg-teal-500" },
+  { name: "networking", colorClass: "bg-amber-500" },
+  { name: "blockchain", colorClass: "bg-emerald-500" },
   { name: "other", colorClass: "bg-indigo-500" },
 ];
 // ──────────────────────────────────────────────────────

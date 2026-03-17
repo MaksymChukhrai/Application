@@ -11,7 +11,7 @@ export async function runSeed(dataSource: DataSource): Promise<void> {
   const tagRepository = dataSource.getRepository(Tag);
 
   // ── Tags (always ensure they exist) ───────────────────────────────────────
-  const tagNames = ['tech', 'art', 'business', 'music', 'design'];
+  const tagNames = ['tech', 'art', 'business', 'music', 'design', 'networking', 'blockchain'];
   const tags: Tag[] = [];
 
   for (const name of tagNames) {
