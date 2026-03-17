@@ -34,12 +34,11 @@ export const EventsPage = () => {
     dispatch(setActiveTagIds([]));
   };
 
-  // Client-side search filter (по title)
   const filtered = items.filter((event) =>
     event.title.toLowerCase().includes(search.toLowerCase()),
   );
 
-  const isTagFiltered = activeTagIds.length > 0; // ← Stage #2
+  const isTagFiltered = activeTagIds.length > 0;
 
   return (
     <div className="flex flex-col gap-6">
@@ -50,9 +49,7 @@ export const EventsPage = () => {
         </p>
       </div>
 
-      {/* Search + Tag filter row */}
       <div className="flex flex-col gap-3">
-        {/* Search input */}
         <div className="relative w-full max-w-sm">
           <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
             <svg
@@ -81,7 +78,6 @@ export const EventsPage = () => {
           />
         </div>
 
-        {/* ── Stage #2: Tag filter ─────────────────── */}
         {allTags.length > 0 && (
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-sm text-gray-500 font-medium">
@@ -117,7 +113,6 @@ export const EventsPage = () => {
             )}
           </div>
         )}
-        {/* ─────────────────────────────────────────── */}
       </div>
 
       {error && (

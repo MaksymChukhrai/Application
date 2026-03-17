@@ -64,6 +64,9 @@ npm run start:dev
 | JWT_SECRET     | JWT signing secret           | -                           |
 | JWT_EXPIRES_IN | JWT expiration time          | 7d                          |
 | PORT           | Backend port                 | 3000                        |
+| GROQ_API_KEY   | Groq API key for AI assistant | -                           |
+| GROQ_MODEL     | Groq model name               | llama-3.1-8b-instant        |
+| GROQ_API_URL   | Groq API endpoint             | https://api.groq.com/openai/v1/chat/completions |
 | FRONTEND_URL   | Frontend URL for CORS        | <http://localhost:5173>     |
 | VITE_API_URL   | Backend API URL for frontend | <http://localhost:3000/api> |
 
@@ -81,6 +84,8 @@ npm run start:dev
 | POST   | /api/events/:id/join  | Yes  | Join event as participant                            |
 | POST   | /api/events/:id/leave | Yes  | Leave event as participant                           |
 | GET    | /api/users/me/events  | Yes  | Get current user's events (organizer or participant) |
+| GET    | /api/tags             | No   | Get all available tags                               |
+| POST   | /api/ai/ask           | Yes  | Ask AI assistant about your events                   |
 | GET    | /api/health           | No   | Health check                                         |
 
 `GET /api/events` and `GET /api/events/:id` accept an optional Bearer token.

@@ -1,5 +1,3 @@
-// backend/src/common/guards/optional-jwt-auth.guard.ts
-
 import { Injectable, ExecutionContext } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Observable } from 'rxjs';

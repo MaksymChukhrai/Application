@@ -16,13 +16,11 @@ export class TagsService {
     return this.tagRepository.find({ order: { name: 'ASC' } });
   }
 
-  // Find tags by ids (used internally by EventsService)
   async findByIds(ids: string[]): Promise<Tag[]> {
     if (!ids || ids.length === 0) return [];
     return this.tagRepository.findBy({ id: In(ids) });
   }
 
-  // Create tag (internal/seed use)
   async create(dto: CreateTagDto): Promise<Tag> {
     const normalized = dto.name.trim().toLowerCase();
 
@@ -38,7 +36,6 @@ export class TagsService {
     return this.tagRepository.save(tag);
   }
 
-  // Find or create by name (used in seed)
   async findOrCreate(name: string): Promise<Tag> {
     const normalized = name.trim().toLowerCase();
     const existing = await this.tagRepository.findOne({

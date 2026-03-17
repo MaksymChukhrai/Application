@@ -20,40 +20,36 @@ export class AiService {
   async ask(question: string, userId: string): Promise<string> {
     try {
       const context = await this.buildContextSnapshot(userId);
-      const answer = await this.callGroqApi(question, context);
-      return answer;
+      return await this.callGroqApi(question, context);
     } catch (error) {
       this.logger.error('AI ask failed', error);
       return "Sorry, I didn't understand that. Please try rephrasing your question.";
     }
   }
 
-  // ─── Context builder ──────────────────────────────────────────────────────
-
   private async buildContextSnapshot(userId: string): Promise<string> {
     const now = new Date();
 
-    // Events the user organizes
     const organizingEvents = await this.eventRepository.find({
       where: { organizer: { id: userId } },
       relations: ['organizer', 'participants', 'tags'],
       order: { date: 'ASC' },
     });
 
-    // Events the user attends (as participant)
-    const user = await this.userRepository.findOne({
-      where: { id: userId },
-      relations: [
-        'participatedEvents',
-        'participatedEvents.organizer',
-        'participatedEvents.participants',
-        'participatedEvents.tags',
-      ],
-    });
+    const attendingEvents = await this.eventRepository
+      .createQueryBuilder('event')
+      .innerJoin(
+        'event.participants',
+        'participant',
+        'participant.id = :userId',
+        { userId },
+      )
+      .leftJoinAndSelect('event.organizer', 'organizer')
+      .leftJoinAndSelect('event.participants', 'participants')
+      .leftJoinAndSelect('event.tags', 'tags')
+      .orderBy('event.date', 'ASC')
+      .getMany();
 
-    const attendingEvents = user?.participatedEvents ?? [];
-
-    // Merge and deduplicate
     const allEventIds = new Set<string>();
     const allEvents: Event[] = [];
 
@@ -64,10 +60,8 @@ export class AiService {
       }
     }
 
-    // Format events for prompt
     const formatEvent = (e: Event): string => {
       const eventDate = new Date(e.date);
-      const isPast = eventDate < now;
       const tags = e.tags?.map((t) => t.name).join(', ') || 'none';
       const participants =
         e.participants?.map((p) => `${p.firstName} ${p.lastName}`).join(', ') ||
@@ -75,16 +69,23 @@ export class AiService {
       const role = organizingEvents.some((o) => o.id === e.id)
         ? 'organizer'
         : 'attendee';
+      const status = eventDate < now ? 'past' : 'upcoming';
+      const spotsLeft =
+        e.capacity != null
+          ? e.capacity - (e.participants?.length ?? 0)
+          : 'unlimited';
 
       return [
         `- Title: "${e.title}"`,
         `  Date: ${eventDate.toISOString().split('T')[0]}`,
-        `  Time: ${eventDate.toTimeString().slice(0, 5)}`,
+        `  Time: ${eventDate.toISOString().slice(11, 16)} (UTC)`,
         `  Location: ${e.location || 'N/A'}`,
         `  Description: ${e.description || 'N/A'}`,
         `  Tags: [${tags}]`,
         `  Role: ${role}`,
-        `  Status: ${isPast ? 'past' : 'upcoming'}`,
+        `  Status: ${status}`,
+        `  Capacity: ${e.capacity ?? 'unlimited'}`,
+        `  Spots left: ${spotsLeft}`,
         `  Participants (${e.participants?.length ?? 0}): ${participants}`,
       ].join('\n');
     };
@@ -92,8 +93,8 @@ export class AiService {
     const upcomingEvents = allEvents.filter((e) => new Date(e.date) >= now);
     const pastEvents = allEvents.filter((e) => new Date(e.date) < now);
 
-    const lines: string[] = [
-      `Current date and time: ${now.toISOString()}`,
+    return [
+      `Current date and time (UTC): ${now.toISOString()}`,
       `User ID: ${userId}`,
       '',
       `=== UPCOMING EVENTS (${upcomingEvents.length}) ===`,
@@ -103,19 +104,16 @@ export class AiService {
       ...pastEvents.map(formatEvent),
       '',
       `Total events: ${allEvents.length}`,
-    ];
-
-    return lines.join('\n');
+      `Organizing: ${organizingEvents.length}`,
+      `Attending: ${attendingEvents.length}`,
+    ].join('\n');
   }
-
-  // ─── Groq API call ────────────────────────────────────────────────────────
 
   private async callGroqApi(
     question: string,
     context: string,
   ): Promise<string> {
     const apiKey = this.configService.get<string>('GROQ_API_KEY');
-    this.logger.log(`GROQ_API_KEY present: ${!!apiKey}, length: ${apiKey?.length ?? 0}`); 
     const model =
       this.configService.get<string>('GROQ_MODEL') ?? 'llama-3.1-8b-instant';
     const apiUrl =
@@ -124,20 +122,26 @@ export class AiService {
 
     if (!apiKey) {
       this.logger.warn('GROQ_API_KEY is not set');
-      return 'Sorry, AI assistant is not configured. Please contact the administrator.';
+      return 'AI assistant is not configured. Please contact the administrator.';
     }
 
     const systemPrompt = [
-  'You are a helpful event management assistant.',
-  'You have READ-ONLY access to the user\'s event data.',
-  'You must NOT create, edit, or delete any data.',
-  'Answer questions concisely and precisely based ONLY on the provided context.',
-  'Always answer directly without any preamble or apology.',
-  'Never start your answer with "Sorry" unless the question is truly unrelated to events.',
-  'If and ONLY IF the question is completely unrelated to events, respond with exactly:',
-  '"Sorry, I didn\'t understand that. Please try rephrasing your question."',
-  '',
-  'Context (user\'s event data):',
+      'You are a concise event management assistant with READ-ONLY access to user event data.',
+      'Rules:',
+      '- Answer directly. No preamble, no apologies, no filler phrases.',
+      '- Never start with "Sure", "Of course", "Certainly", "I can help with that".',
+      '- Use only the data provided in the context below. Do not invent or assume anything.',
+      '- All event times in context are UTC. When reporting time, append "(UTC)" to be clear.',
+      '- For lists, use concise bullet points.',
+      '- For counts, give a direct number.',
+      '- For date-based questions (e.g. "this week", "today"), compare against "Current date and time (UTC)" from context.',
+      '- For tag-based questions, match against the Tags field of each event.',
+      '- For participant questions, use the Participants field of the relevant event.',
+      '- If the question references an event not in the context, say: "I don\'t have data on that event."',
+      "- If and ONLY IF the question is completely unrelated to events or the user's data, respond with exactly:",
+      '  "Sorry, I didn\'t understand that. Please try rephrasing your question."',
+      '',
+      'Context:',
       context,
     ].join('\n');
 
@@ -153,7 +157,7 @@ export class AiService {
           { role: 'system', content: systemPrompt },
           { role: 'user', content: question },
         ],
-        temperature: 0.3,
+        temperature: 0.2,
         max_tokens: 512,
       }),
     });
