@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react";                           // ← useEffect
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";                // ← Stage #2
-import type { AppDispatch, RootState } from "../store";                // ← Stage #2
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../store";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { eventsApi } from "../api/events.api";
-import { fetchTags } from "../store/tags.slice";                       // ← Stage #2
+import { fetchTags } from "../store/tags.slice";
 import { Button } from "../components/common/Button";
 import { combineDateAndTime } from "../utils/date.utils";
 
@@ -34,20 +34,16 @@ type EventFormData = z.infer<typeof eventSchema>;
 
 export const CreateEventPage = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch<AppDispatch>();                         // ← Stage #2
-  const { items: allTags } = useSelector(                             // ← Stage #2
-    (state: RootState) => state.tags,
-  );
+  const dispatch = useDispatch<AppDispatch>();
+  const { items: allTags } = useSelector((state: RootState) => state.tags);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);  // ← Stage #2
-  const [tagError, setTagError] = useState<string | null>(null);       // ← Stage #2
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+  const [tagError, setTagError] = useState<string | null>(null);
 
-  // ── Stage #2: загружаем теги если ещё не загружены ─
   useEffect(() => {
     if (allTags.length === 0) dispatch(fetchTags());
   }, [dispatch, allTags.length]);
-  // ───────────────────────────────────────────────────
 
   const {
     register,
@@ -58,7 +54,6 @@ export const CreateEventPage = () => {
     defaultValues: { visibility: "public" },
   });
 
-  // ── Stage #2: toggle тега ──────────────────────────
   const handleTagToggle = (tagId: string) => {
     setTagError(null);
     setSelectedTagIds((prev) => {
@@ -72,7 +67,6 @@ export const CreateEventPage = () => {
       return [...prev, tagId];
     });
   };
-  // ───────────────────────────────────────────────────
 
   const onSubmit = async (data: EventFormData) => {
     setIsLoading(true);
@@ -86,7 +80,7 @@ export const CreateEventPage = () => {
         location: data.location,
         capacity: data.capacity ? parseInt(data.capacity, 10) : null,
         visibility: data.visibility,
-        tagIds: selectedTagIds.length > 0 ? selectedTagIds : undefined, // ← Stage #2
+        tagIds: selectedTagIds.length > 0 ? selectedTagIds : undefined,
       });
       navigate(`/events/${event.id}`);
     } catch {
@@ -250,7 +244,6 @@ export const CreateEventPage = () => {
             </label>
           </div>
 
-          {/* ── Stage #2: Tags multi-select ───────────── */}
           {allTags.length > 0 && (
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-gray-700">
@@ -292,7 +285,6 @@ export const CreateEventPage = () => {
               )}
             </div>
           )}
-          {/* ─────────────────────────────────────────── */}
 
           <div className="flex gap-3 pt-2">
             <Button

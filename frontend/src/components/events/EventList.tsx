@@ -5,13 +5,13 @@ import { EventCardSkeleton } from "../common/Skeleton";
 interface EventListProps {
   events: Event[];
   isLoading: boolean;
-  isTagFiltered?: boolean;          // ← Stage #2
+  isTagFiltered?: boolean;
 }
 
 export const EventList = ({
   events,
   isLoading,
-  isTagFiltered = false,            // ← Stage #2
+  isTagFiltered = false, 
 }: EventListProps) => {
   if (isLoading) {
     return (
@@ -26,7 +26,7 @@ export const EventList = ({
   if (events.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        {/* ── Stage #2: разный empty state ─────────── */}
+
         {isTagFiltered ? (
           <>
             <p className="text-gray-400 text-lg font-medium">
@@ -44,7 +44,7 @@ export const EventList = ({
             </p>
           </>
         )}
-        {/* ─────────────────────────────────────────── */}
+
       </div>
     );
   }

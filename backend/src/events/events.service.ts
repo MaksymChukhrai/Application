@@ -147,7 +147,6 @@ export class EventsService {
       throw new BadRequestException('Event date must be in the future');
     }
 
-    // Resolve tagIds to Tag entities
     let tags: Tag[] = [];
     if (dto.tagIds && dto.tagIds.length > 0) {
       tags = await this.tagsService.findByIds(dto.tagIds);

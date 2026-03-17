@@ -5,7 +5,6 @@ import type { RootState, AppDispatch } from "../../store";
 import { logout } from "../../store/auth.slice";
 import { Button } from "../common/Button";
 
-// --- Icon imports ---
 import iconEvents from "../../assets/icons/icon-events.svg";
 import iconCalendar from "../../assets/icons/icon-calendar.svg";
 import iconPlus from "../../assets/icons/icon-plus.svg";

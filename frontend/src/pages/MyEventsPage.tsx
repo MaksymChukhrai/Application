@@ -19,7 +19,6 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-// ── Stage #2: tag → hex color ──────────────────────────
 const TAG_CALENDAR_COLORS: Record<string, string> = {
   tech: "#6366f1",
   art: "#a855f7",
@@ -49,7 +48,6 @@ const TAG_LEGEND: Array<{ name: string; colorClass: string }> = [
   { name: "blockchain", colorClass: "bg-emerald-500" },
   { name: "other", colorClass: "bg-indigo-500" },
 ];
-// ──────────────────────────────────────────────────────
 
 interface CalendarEvent {
   id: string;
