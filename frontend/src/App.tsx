@@ -10,7 +10,7 @@ import { EventDetailPage } from "./pages/EventDetailPage";
 import { CreateEventPage } from "./pages/CreateEventPage";
 import { EditEventPage } from "./pages/EditEventPage";
 import { MyEventsPage } from "./pages/MyEventsPage";
-import { AiAssistantPage } from "./pages/AiAssistantPage";   // ← Stage #2
+import { AiAssistantPage } from "./pages/AiAssistantPage";
 
 const App = () => {
   return (

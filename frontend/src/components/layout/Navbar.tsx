@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import type { RootState, AppDispatch } from "../../store";
 import { logout } from "../../store/auth.slice";
 import { Button } from "../common/Button";
+import { NotificationBell } from "../NotificationBell";
 
 import iconEvents from "../../assets/icons/icon-events.svg";
 import iconCalendar from "../../assets/icons/icon-calendar.svg";
@@ -63,6 +64,7 @@ export const Navbar = () => {
               EventHub
             </Link>
 
+            {/* ─── Desktop nav ─── */}
             <nav className="hidden md:flex items-center gap-6">
               {user ? (
                 <>
@@ -92,6 +94,9 @@ export const Navbar = () => {
                     </span>
                     AI Assistant
                   </NavLink>
+
+                  {/* Bell — desktop */}
+                  <NotificationBell />
 
                   <NavLink to="/events/create" className="flex items-center">
                     <Button variant="primary" size="sm">
@@ -139,17 +144,23 @@ export const Navbar = () => {
               )}
             </nav>
 
-            <button
-              className={`burger-icon md:!hidden ${menuOpen ? "active" : ""}`}
-              onClick={() => setMenuOpen((prev) => !prev)}
-              aria-label={menuOpen ? "Close menu" : "Open menu"}
-              data-expanded={menuOpen}
-              type="button"
-            >
-              <span />
-              <span />
-              <span />
-            </button>
+            {/* ─── Mobile: bell + burger ─── */}
+            <div className="flex items-center gap-2 md:hidden">
+              {/* Bell visible in header on mobile when logged in */}
+              {user && <NotificationBell />}
+
+              <button
+                className={`burger-icon ${menuOpen ? "active" : ""}`}
+                onClick={() => setMenuOpen((prev) => !prev)}
+                aria-label={menuOpen ? "Close menu" : "Open menu"}
+                data-expanded={menuOpen}
+                type="button"
+              >
+                <span />
+                <span />
+                <span />
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -160,6 +171,7 @@ export const Navbar = () => {
         aria-hidden="true"
       />
 
+      {/* ─── Burger menu ─── */}
       <nav
         className={`burger-menu md:hidden ${menuOpen ? "open" : ""}`}
         aria-label="Mobile navigation"

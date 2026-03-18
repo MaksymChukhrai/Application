@@ -1,3 +1,4 @@
+// backend/src/events/events.service.ts
 import {
   Injectable,
   NotFoundException,
@@ -14,6 +15,7 @@ import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { EventResponseDto } from './dto/event-response.dto';
 import { TagsService } from '../tags/tags.service';
+import { EventsGateway } from './events.gateway'; // NEW
 
 @Injectable()
 export class EventsService {
@@ -21,7 +23,10 @@ export class EventsService {
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
     private readonly tagsService: TagsService,
+    private readonly eventsGateway: EventsGateway, // NEW
   ) {}
+
+  // ─── toResponseDto (unchanged) ───────────────────────────────────────────
 
   private toResponseDto(
     event: Event,
@@ -63,6 +68,8 @@ export class EventsService {
     };
   }
 
+  // ─── findAllPublic (unchanged) ────────────────────────────────────────────
+
   async findAllPublic(
     currentUserId?: string,
     tagIds?: string[],
@@ -77,7 +84,6 @@ export class EventsService {
       })
       .orderBy('event.date', 'ASC');
 
-    // Filter by tags if provided — event must have ALL specified tags
     if (tagIds && tagIds.length > 0) {
       qb.andWhere((qb2) => {
         const subQuery = qb2
@@ -98,6 +104,8 @@ export class EventsService {
     return events.map((event) => this.toResponseDto(event, currentUserId));
   }
 
+  // ─── findById (unchanged) ─────────────────────────────────────────────────
+
   async findById(
     id: string,
     currentUserId?: string,
@@ -113,6 +121,8 @@ export class EventsService {
 
     return this.toResponseDto(event, currentUserId);
   }
+
+  // ─── findUserEvents (unchanged) ───────────────────────────────────────────
 
   async findUserEvents(userId: string): Promise<EventResponseDto[]> {
     const events = await this.eventRepository
@@ -137,6 +147,8 @@ export class EventsService {
 
     return events.map((event) => this.toResponseDto(event, userId));
   }
+
+  // ─── create — UPDATED ─────────────────────────────────────────────────────
 
   async create(
     dto: CreateEventDto,
@@ -175,8 +187,19 @@ export class EventsService {
       relations: ['organizer', 'participants', 'tags'],
     });
 
-    return this.toResponseDto(full!, organizer.id);
+    const response = this.toResponseDto(full!, organizer.id);
+
+    // Broadcast to all connected clients that a new event was created
+    this.eventsGateway.broadcastEventCreated({
+      eventId: full!.id,
+      title: full!.title,
+      organizerName: `${organizer.firstName} ${organizer.lastName}`,
+    });
+
+    return response;
   }
+
+  // ─── update (unchanged) ───────────────────────────────────────────────────
 
   async update(
     id: string,
@@ -232,6 +255,8 @@ export class EventsService {
     return this.toResponseDto(full!, userId);
   }
 
+  // ─── delete (unchanged) ───────────────────────────────────────────────────
+
   async delete(id: string, userId: string): Promise<void> {
     const event = await this.eventRepository.findOne({
       where: { id },
@@ -247,6 +272,8 @@ export class EventsService {
 
     await this.eventRepository.remove(event);
   }
+
+  // ─── joinEvent — UPDATED ──────────────────────────────────────────────────
 
   async joinEvent(eventId: string, user: User): Promise<EventResponseDto> {
     const event = await this.eventRepository.findOne({
@@ -274,8 +301,18 @@ export class EventsService {
 
     event.participants.push(user);
     const updated = await this.eventRepository.save(event);
+
+    // Notify organizer that someone joined their event
+    this.eventsGateway.notifyParticipantJoined(event.organizer.id, {
+      eventId: event.id,
+      eventTitle: event.title,
+      userName: `${user.firstName} ${user.lastName}`,
+    });
+
     return this.toResponseDto(updated, user.id);
   }
+
+  // ─── leaveEvent — UPDATED ─────────────────────────────────────────────────
 
   async leaveEvent(eventId: string, userId: string): Promise<EventResponseDto> {
     const event = await this.eventRepository.findOne({
@@ -295,8 +332,19 @@ export class EventsService {
       throw new BadRequestException('You are not a participant of this event');
     }
 
+    // Capture user data before splice for notification payload
+    const leavingUser = event.participants[participantIndex];
+
     event.participants.splice(participantIndex, 1);
     const updated = await this.eventRepository.save(event);
+
+    // Notify organizer that someone left their event
+    this.eventsGateway.notifyParticipantLeft(event.organizer.id, {
+      eventId: event.id,
+      eventTitle: event.title,
+      userName: `${leavingUser.firstName} ${leavingUser.lastName}`,
+    });
+
     return this.toResponseDto(updated, userId);
   }
 }
