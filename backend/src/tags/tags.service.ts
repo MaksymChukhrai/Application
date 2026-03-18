@@ -11,7 +11,6 @@ export class TagsService {
     private readonly tagRepository: Repository<Tag>,
   ) {}
 
-  // Get all tags (public)
   async findAll(): Promise<Tag[]> {
     return this.tagRepository.find({ order: { name: 'ASC' } });
   }

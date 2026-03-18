@@ -210,7 +210,6 @@ export class EventsService {
     if (dto.capacity !== undefined) event.capacity = dto.capacity;
     if (dto.visibility !== undefined) event.visibility = dto.visibility;
 
-    // Update tags if tagIds provided
     if (dto.tagIds !== undefined) {
       if (dto.tagIds.length === 0) {
         event.tags = [];
@@ -225,7 +224,6 @@ export class EventsService {
 
     const updated = await this.eventRepository.save(event);
 
-    // Reload to get fresh relations after save
     const full = await this.eventRepository.findOne({
       where: { id: updated.id },
       relations: ['organizer', 'participants', 'tags'],

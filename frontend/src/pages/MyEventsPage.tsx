@@ -37,7 +37,6 @@ function getEventBg(event: Event): string {
   return TAG_CALENDAR_COLORS[firstTag.name.toLowerCase()] ?? DEFAULT_BG;
 }
 
-// Legend items — Tailwind bg class + name
 const TAG_LEGEND: Array<{ name: string; colorClass: string }> = [
   { name: "tech", colorClass: "bg-indigo-500" },
   { name: "art", colorClass: "bg-purple-500" },
@@ -151,7 +150,6 @@ export const MyEventsPage = () => {
         </div>
       ) : (
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
-          {/* ── Stage #2: Tag color legend ─────────────── */}
           <div className="flex flex-wrap items-center gap-3 mb-4">
             {TAG_LEGEND.map(({ name, colorClass }) => (
               <div key={name} className="flex items-center gap-1.5">
@@ -162,7 +160,6 @@ export const MyEventsPage = () => {
               </div>
             ))}
           </div>
-          {/* ─────────────────────────────────────────── */}
 
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">

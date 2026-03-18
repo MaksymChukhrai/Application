@@ -30,7 +30,7 @@ const App = () => {
               <Route path="/events/create" element={<CreateEventPage />} />
               <Route path="/events/:id/edit" element={<EditEventPage />} />
               <Route path="/my-events" element={<MyEventsPage />} />
-              <Route path="/ai-assistant" element={<AiAssistantPage />} />  {/* ← Stage #2 */}
+              <Route path="/ai-assistant" element={<AiAssistantPage />} /> 
             </Route>
 
             <Route path="/" element={<Navigate to="/events" replace />} />
