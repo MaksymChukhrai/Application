@@ -10,7 +10,7 @@ import {
 } from "../../store/events.slice";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
 import { Button } from "../common/Button";
-import TagChip from "../common/TagChip";                        // ← Stage #2
+import TagChip from "../common/TagChip";
 import { formatEventDate, formatEventTime } from "../../utils/date.utils";
 
 interface EventCardProps {
@@ -82,7 +82,6 @@ export const EventCard = ({ event }: EventCardProps) => {
         </div>
       </div>
 
-      {/* ── Stage #2: Tags ───────────────────────────── */}
       {event.tags && event.tags.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {event.tags.map((tag) => (
@@ -90,7 +89,6 @@ export const EventCard = ({ event }: EventCardProps) => {
           ))}
         </div>
       )}
-      {/* ─────────────────────────────────────────────── */}
 
       <div className="mt-auto pt-2">
         {isFull && !isJoined ? (

@@ -1,19 +1,21 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../store";
 import { fetchEvents, setActiveTagIds } from "../store/events.slice";
 import { fetchTags } from "../store/tags.slice";
 import { EventList } from "../components/events/EventList";
+import { useUiStore } from "../store/uiStore";
 
 export const EventsPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { items, isLoading, error, activeTagIds } = useSelector(
     (state: RootState) => state.events,
   );
-
   const { items: allTags } = useSelector((state: RootState) => state.tags);
 
-  const [search, setSearch] = useState("");
+  // ── Zustand: search query ──────────────────────────────────
+  const searchQuery = useUiStore((s) => s.searchQuery);
+  const setSearchQuery = useUiStore((s) => s.setSearchQuery);
 
   useEffect(() => {
     dispatch(fetchTags());
@@ -35,7 +37,7 @@ export const EventsPage = () => {
   };
 
   const filtered = items.filter((event) =>
-    event.title.toLowerCase().includes(search.toLowerCase()),
+    event.title.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const isTagFiltered = activeTagIds.length > 0;
@@ -72,9 +74,10 @@ export const EventsPage = () => {
           <input
             type="text"
             placeholder="Search events..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="border border-gray-300 rounded-lg pl-9 pr-4 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="border border-gray-300 rounded-lg pl-9 pr-4 py-2 text-sm w-full 
+                       focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
 

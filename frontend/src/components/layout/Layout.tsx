@@ -1,7 +1,12 @@
 import { Outlet } from "react-router-dom";
 import { Navbar } from "./Navbar";
+import { useSocket } from "../../hooks/useSocket";
+import { useUiEffects } from "../../hooks/useUiEffects";
 
 export const Layout = () => {
+  useSocket();
+  useUiEffects();
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />

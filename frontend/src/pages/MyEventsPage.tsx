@@ -5,9 +5,9 @@ import { format, parse, startOfWeek, getDay } from "date-fns";
 import { enUS } from "date-fns/locale/en-US";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import type { Event } from "../types";
-import type { CalendarView } from "../types";
 import { usersApi } from "../api/users.api";
 import { Button } from "../components/common/Button";
+import { useUiStore } from "../store/uiStore";
 
 const locales = { "en-US": enUS };
 
@@ -20,11 +20,11 @@ const localizer = dateFnsLocalizer({
 });
 
 const TAG_CALENDAR_COLORS: Record<string, string> = {
-  tech: "#6366f1",
-  art: "#a855f7",
-  business: "#3b82f6",
-  music: "#ec4899",
-  design: "#14b8a6",
+  tech:       "#6366f1",
+  art:        "#a855f7",
+  business:   "#3b82f6",
+  music:      "#ec4899",
+  design:     "#14b8a6",
   networking: "#f59e0b",
   blockchain: "#10b981",
 };
@@ -37,16 +37,15 @@ function getEventBg(event: Event): string {
   return TAG_CALENDAR_COLORS[firstTag.name.toLowerCase()] ?? DEFAULT_BG;
 }
 
-// Legend items — Tailwind bg class + name
 const TAG_LEGEND: Array<{ name: string; colorClass: string }> = [
-  { name: "tech", colorClass: "bg-indigo-500" },
-  { name: "art", colorClass: "bg-purple-500" },
-  { name: "business", colorClass: "bg-blue-500" },
-  { name: "music", colorClass: "bg-pink-500" },
-  { name: "design", colorClass: "bg-teal-500" },
-  { name: "networking", colorClass: "bg-amber-500" },
-  { name: "blockchain", colorClass: "bg-emerald-500" },
-  { name: "other", colorClass: "bg-indigo-500" },
+  { name: "tech",        colorClass: "bg-indigo-500" },
+  { name: "art",         colorClass: "bg-purple-500" },
+  { name: "business",    colorClass: "bg-blue-500" },
+  { name: "music",       colorClass: "bg-pink-500" },
+  { name: "design",      colorClass: "bg-teal-500" },
+  { name: "networking",  colorClass: "bg-amber-500" },
+  { name: "blockchain",  colorClass: "bg-emerald-500" },
+  { name: "other",       colorClass: "bg-indigo-500" },
 ];
 
 interface CalendarEvent {
@@ -62,8 +61,11 @@ export const MyEventsPage = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [view, setView] = useState<CalendarView>("month");
   const [currentDate, setCurrentDate] = useState(new Date());
+
+  // ── Zustand: calendar view (persisted) ────────────────────
+  const calendarView = useUiStore((s) => s.calendarView);
+  const setCalendarView = useUiStore((s) => s.setCalendarView);
 
   useEffect(() => {
     const fetchMyEvents = async () => {
@@ -108,7 +110,7 @@ export const MyEventsPage = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <span className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></span>
+        <span className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -151,25 +153,21 @@ export const MyEventsPage = () => {
         </div>
       ) : (
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
-          {/* ── Stage #2: Tag color legend ─────────────── */}
           <div className="flex flex-wrap items-center gap-3 mb-4">
             {TAG_LEGEND.map(({ name, colorClass }) => (
               <div key={name} className="flex items-center gap-1.5">
-                <span
-                  className={`w-3 h-3 rounded-full shrink-0 ${colorClass}`}
-                ></span>
+                <span className={`w-3 h-3 rounded-full shrink-0 ${colorClass}`} />
                 <span className="text-xs text-gray-500 capitalize">{name}</span>
               </div>
             ))}
           </div>
-          {/* ─────────────────────────────────────────── */}
 
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => {
                   const prev = new Date(currentDate);
-                  if (view === "month") prev.setMonth(prev.getMonth() - 1);
+                  if (calendarView === "month") prev.setMonth(prev.getMonth() - 1);
                   else prev.setDate(prev.getDate() - 7);
                   setCurrentDate(prev);
                 }}
@@ -177,13 +175,14 @@ export const MyEventsPage = () => {
               >
                 ‹
               </button>
-              <span className="text-base font-semibold text-gray-900 min-w-0 text-center truncate max-w-[120px]">
+              <span className="text-base font-semibold text-gray-900 min-w-0 
+                               text-center truncate max-w-[120px]">
                 {formatHeaderDate()}
               </span>
               <button
                 onClick={() => {
                   const next = new Date(currentDate);
-                  if (view === "month") next.setMonth(next.getMonth() + 1);
+                  if (calendarView === "month") next.setMonth(next.getMonth() + 1);
                   else next.setDate(next.getDate() + 7);
                   setCurrentDate(next);
                 }}
@@ -195,9 +194,9 @@ export const MyEventsPage = () => {
 
             <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
               <button
-                onClick={() => setView("month")}
+                onClick={() => setCalendarView("month")}
                 className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                  view === "month"
+                  calendarView === "month"
                     ? "bg-white text-indigo-600 shadow-sm"
                     : "text-gray-500 hover:text-gray-700"
                 }`}
@@ -205,9 +204,9 @@ export const MyEventsPage = () => {
                 Month
               </button>
               <button
-                onClick={() => setView("week")}
+                onClick={() => setCalendarView("week")}
                 className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                  view === "week"
+                  calendarView === "week"
                     ? "bg-white text-indigo-600 shadow-sm"
                     : "text-gray-500 hover:text-gray-700"
                 }`}
@@ -220,7 +219,7 @@ export const MyEventsPage = () => {
           <Calendar
             localizer={localizer}
             events={calendarEvents}
-            view={view}
+            view={calendarView}
             date={currentDate}
             onNavigate={handleNavigate}
             onView={() => {}}
