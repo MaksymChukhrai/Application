@@ -32,8 +32,8 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
       FRONTEND_URL: ${FRONTEND_URL}
-      GROQ_API_KEY: ${GROQ_API_KEY} 
-      GROQ_MODEL: ${GROQ_MODEL} 
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      GROQ_MODEL: ${GROQ_MODEL}
       GROQ_API_URL: ${GROQ_API_URL}
     ports:
       - "3000:3000"
@@ -53,6 +53,15 @@ services:
       - "5173:80"
     depends_on:
       - backend
+    restart: unless-stopped
+
+  storybook:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.storybook
+    container_name: event_management_storybook
+    ports:
+      - "6006:80"
     restart: unless-stopped
 
 volumes:
