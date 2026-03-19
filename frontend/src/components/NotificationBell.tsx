@@ -126,7 +126,6 @@ export const NotificationBellUI = ({
             )}
           </div>
 
-          {/* List */}
           <div className="max-h-80 overflow-y-auto divide-y divide-gray-50">
             {count === 0 ? (
               <div className="px-3 py-6 text-center">

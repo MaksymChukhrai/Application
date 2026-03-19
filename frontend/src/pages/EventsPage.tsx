@@ -13,7 +13,6 @@ export const EventsPage = () => {
   );
   const { items: allTags } = useSelector((state: RootState) => state.tags);
 
-  // ── Zustand: search query ──────────────────────────────────
   const searchQuery = useUiStore((s) => s.searchQuery);
   const setSearchQuery = useUiStore((s) => s.setSearchQuery);
 
