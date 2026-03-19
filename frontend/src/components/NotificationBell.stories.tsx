@@ -1,5 +1,4 @@
-// frontend/src/components/NotificationBell.stories.tsx
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { NotificationBellUI } from './NotificationBell';
 import type { Notification } from '../store/notificationsStore';
 
@@ -7,7 +6,6 @@ const meta: Meta<typeof NotificationBellUI> = {
   title: 'Common/NotificationBell',
   component: NotificationBellUI,
   tags: ['autodocs'],
-  // No decorators — padding handled per-story via render wrapper
   argTypes: {
     onRemove:   { action: 'removed' },
     onClearAll: { action: 'cleared all' },
@@ -17,7 +15,7 @@ const meta: Meta<typeof NotificationBellUI> = {
 export default meta;
 type Story = StoryObj<typeof NotificationBellUI>;
 
-// ─── Mock data ────────────────────────────────────────────
+
 
 const mockNotifications: Notification[] = [
   {
@@ -40,7 +38,7 @@ const mockNotifications: Notification[] = [
   },
 ];
 
-// ─── Helper — wraps any story in padding so dropdown is visible ──
+
 
 const withPadding = (args: React.ComponentProps<typeof NotificationBellUI>) => (
   <div className="p-8 flex justify-end">
@@ -48,7 +46,7 @@ const withPadding = (args: React.ComponentProps<typeof NotificationBellUI>) => (
   </div>
 );
 
-// ─── Stories ─────────────────────────────────────────────
+
 
 export const Empty: Story = {
   render: (args) => withPadding(args),

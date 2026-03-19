@@ -64,7 +64,6 @@ export const Navbar = () => {
               EventHub
             </Link>
 
-            {/* ─── Desktop nav ─── */}
             <nav className="hidden md:flex items-center gap-6">
               {user ? (
                 <>
@@ -95,7 +94,6 @@ export const Navbar = () => {
                     AI Assistant
                   </NavLink>
 
-                  {/* Bell — desktop */}
                   <NotificationBell />
 
                   <NavLink to="/events/create" className="flex items-center">
@@ -144,7 +142,6 @@ export const Navbar = () => {
               )}
             </nav>
 
-            {/* ─── Mobile: bell + burger ─── */}
             <div className="flex items-center gap-2 md:hidden">
               {/* Bell visible in header on mobile when logged in */}
               {user && <NotificationBell />}
@@ -171,7 +168,6 @@ export const Navbar = () => {
         aria-hidden="true"
       />
 
-      {/* ─── Burger menu ─── */}
       <nav
         className={`burger-menu md:hidden ${menuOpen ? "open" : ""}`}
         aria-label="Mobile navigation"
