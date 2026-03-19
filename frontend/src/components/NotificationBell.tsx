@@ -1,7 +1,9 @@
-// frontend/src/components/NotificationBell.tsx
 import { useEffect, useRef, useState } from "react";
 import { useNotificationsStore } from "../store/notificationsStore";
-import type { Notification, NotificationType } from "../store/notificationsStore";
+import type {
+  Notification,
+  NotificationType,
+} from "../store/notificationsStore";
 import { formatDistanceToNow } from "date-fns";
 
 const TYPE_ICON: Record<NotificationType, string> = {
@@ -13,10 +15,8 @@ const TYPE_ICON: Record<NotificationType, string> = {
 const TYPE_DOT: Record<NotificationType, string> = {
   success: "bg-green-500",
   warning: "bg-amber-500",
-  info:    "bg-indigo-500",
+  info: "bg-indigo-500",
 };
-
-// ─── Presentational sub-components ───────────────────────
 
 const NotificationItem = ({
   notification,
@@ -48,8 +48,6 @@ const NotificationItem = ({
   </div>
 );
 
-// ─── Pure presentational component (Storybook-friendly) ──
-
 export interface NotificationBellUIProps {
   notifications: Notification[];
   onRemove: (id: string) => void;
@@ -65,7 +63,6 @@ export const NotificationBellUI = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const count = notifications.length;
 
-  // Close on outside click
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (
@@ -79,7 +76,6 @@ export const NotificationBellUI = ({
     return () => document.removeEventListener("mousedown", handleClick);
   }, [open]);
 
-  // Close on Escape
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
@@ -90,7 +86,6 @@ export const NotificationBellUI = ({
 
   return (
     <div className="relative" ref={dropdownRef}>
-      {/* Bell button */}
       <button
         onClick={() => setOpen((prev) => !prev)}
         className="relative flex items-center justify-center w-8 h-8 rounded-full
@@ -100,7 +95,6 @@ export const NotificationBellUI = ({
       >
         <span className="text-lg leading-none">🔔</span>
 
-        {/* Badge */}
         {count > 0 && (
           <span
             className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-0.5
@@ -112,13 +106,11 @@ export const NotificationBellUI = ({
         )}
       </button>
 
-      {/* Dropdown */}
       {open && (
         <div
           className="absolute right-0 top-10 w-80 bg-white border border-gray-200
                      rounded-xl shadow-lg z-50 overflow-hidden"
         >
-          {/* Header */}
           <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100">
             <h3 className="text-sm font-semibold text-gray-900">
               Notifications
@@ -151,7 +143,6 @@ export const NotificationBellUI = ({
             )}
           </div>
 
-          {/* Footer — type legend */}
           {count > 0 && (
             <div className="px-3 py-2 border-t border-gray-100 flex gap-3">
               {(Object.entries(TYPE_DOT) as [NotificationType, string][]).map(
@@ -163,7 +154,7 @@ export const NotificationBellUI = ({
                     <span className={`w-1.5 h-1.5 rounded-full ${dotClass}`} />
                     {type}
                   </span>
-                )
+                ),
               )}
             </div>
           )}
@@ -172,8 +163,6 @@ export const NotificationBellUI = ({
     </div>
   );
 };
-
-// ─── Connected component (используется в Navbar) ──────────
 
 export const NotificationBell = () => {
   const { notifications, removeNotification, clearAll } =

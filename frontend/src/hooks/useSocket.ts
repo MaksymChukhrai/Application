@@ -21,13 +21,11 @@ export const useSocket = () => {
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
   const addNotification = useNotificationsStore((s) => s.addNotification);
 
-  // ref чтобы не пересоздавать socket при ре-рендерах
   const socketRef = useRef<Socket | null>(null);
 
   const isAuthenticated = !!user && !!accessToken;
 
   useEffect(() => {
-    // Не подключаемся если не авторизован
     if (!isAuthenticated || !user) return;
 
     const apiUrl = import.meta.env.VITE_API_URL as string;
@@ -39,28 +37,27 @@ export const useSocket = () => {
     socketRef.current = socket;
 
     socket.on("connect", () => {
-      // Join personal room to receive organizer notifications
       socket.emit("join-room", user.id);
     });
 
     socket.on("participant:joined", (payload: ParticipantPayload) => {
       addNotification(
         `${payload.userName} joined "${payload.eventTitle}"`,
-        "success"
+        "success",
       );
     });
 
     socket.on("participant:left", (payload: ParticipantPayload) => {
       addNotification(
         `${payload.userName} left "${payload.eventTitle}"`,
-        "warning"
+        "warning",
       );
     });
 
     socket.on("event:created", (payload: EventCreatedPayload) => {
       addNotification(
         `New event: "${payload.title}" by ${payload.organizerName}`,
-        "info"
+        "info",
       );
     });
 

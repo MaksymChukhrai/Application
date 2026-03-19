@@ -4,10 +4,10 @@ import globals from 'globals';
 
 export default [
   {
-    ignores: ['dist/**', 'node_modules/**'],
+    ignores: ['dist/**', 'node_modules/**', 'test/**'], 
   },
   {
-    files: ['**/*.ts'],
+    files: ['src/**/*.ts'],
     languageOptions: {
       parser: typescriptParser,
       parserOptions: {

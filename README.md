@@ -89,22 +89,22 @@ npm run dev
 
 ### Environment Variables
 
-| Variable       | Description                   | Default                                           |
-| -------------- | ----------------------------- | ------------------------------------------------- |
-| DB_HOST        | PostgreSQL host               | localhost                                         |
-| DB_PORT        | PostgreSQL port               | 5432                                              |
-| DB_USERNAME    | PostgreSQL user               | postgres                                          |
-| DB_PASSWORD    | PostgreSQL password           | postgres                                          |
-| DB_NAME        | PostgreSQL database           | event_management                                  |
-| JWT_SECRET     | JWT signing secret            | -                                                 |
-| JWT_EXPIRES_IN | JWT expiration time           | 7d                                                |
-| PORT           | Backend port                  | 3000                                              |
-| GROQ_API_KEY   | Groq API key for AI assistant | -                                                 |
-| GROQ_MODEL     | Groq model name               | llama-3.1-8b-instant                              |
-| GROQ_API_URL   | Groq API endpoint             | <https://api.groq.com/openai/v1/chat/completions> |
-| FRONTEND_URL   | Frontend URL for CORS         | <http://localhost:5173>                           |
-| VITE_API_URL   | Backend API URL for frontend  | <http://localhost:3000/api>                       |
-| NODE_ENV       | Application environment       | production                                        |
+| Variable       | Description                   | Default                                                                     |
+| -------------- | ----------------------------- | --------------------------------------------------------------------------- |
+| DB_HOST        | PostgreSQL host               | localhost                                                                   |
+| DB_PORT        | PostgreSQL port               | 5432                                                                        |
+| DB_USERNAME    | PostgreSQL user               | postgres                                                                    |
+| DB_PASSWORD    | PostgreSQL password           | postgres                                                                    |
+| DB_NAME        | PostgreSQL database           | event_management                                                            |
+| JWT_SECRET     | JWT signing secret            | -                                                                           |
+| JWT_EXPIRES_IN | JWT expiration time           | 7d                                                                          |
+| PORT           | Backend port                  | 3000                                                                        |
+| GROQ_API_KEY   | Groq API key for AI assistant | get your free key at [console.groq.com/keys](https://console.groq.com/keys) |
+| GROQ_MODEL     | Groq model name               | llama-3.1-8b-instant                                                        |
+| GROQ_API_URL   | Groq API endpoint             | <https://api.groq.com/openai/v1/chat/completions>                           |
+| FRONTEND_URL   | Frontend URL for CORS         | <http://localhost:5173>                                                     |
+| VITE_API_URL   | Backend API URL for frontend  | <http://localhost:3000/api>                                                 |
+| NODE_ENV       | Application environment       | production                                                                  |
 
 ## API Endpoints
 
@@ -314,7 +314,7 @@ Run with details:
 
 ```bash
 cd frontend
-npm run test -- --verbose
+npm run test -- --reporter=verbose
 ```
 
 ## Live Demo (Railway)
