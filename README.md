@@ -4,30 +4,25 @@ A full-stack Event Management application built with NestJS, React, and PostgreS
 
 ## Table of Contents
 
-- [Event Management System](#event-management-system)
-  - [Table of Contents](#table-of-contents)
-  - [Tech Stack](#tech-stack)
-  - [Prerequisites](#prerequisites)
-  - [Quick Start (Docker)](#quick-start-docker)
-  - [Local Development](#local-development)
+- [Tech Stack](#tech-stack)
+- [Prerequisites](#prerequisites)
+- [Quick Start (Docker)](#quick-start-docker)
+- [Local Development](#local-development)
     - [Backend](#backend)
     - [Frontend](#frontend)
-    - [Environment Variables](#environment-variables)
-  - [API Endpoints](#api-endpoints)
-  - [Project Structure](#project-structure)
-  - [Database Schema](#database-schema)
-    - [Users](#users)
-    - [Events](#events)
-    - [Participants (join table)](#participants-join-table)
-  - [Seed Data](#seed-data)
-  - [WebSocket Notifications](#websocket-notifications)
-  - [AI Assistant](#ai-assistant)
-  - [State Management](#state-management)
-  - [Storybook](#storybook)
-  - [Running Tests](#running-tests)
+- [Environment Variables](#environment-variables)
+- [API Endpoints](#api-endpoints)
+- [Project Structure](#project-structure)
+- [Database Schema](#database-schema)
+- [Seed Data](#seed-data)
+- [WebSocket Notifications](#websocket-notifications)
+- [AI Assistant](#ai-assistant)
+- [State Management](#state-management)
+- [Storybook](#storybook)
+- [Running Tests](#running-tests)
     - [Backend](#backend-1)
     - [Frontend](#frontend-1)
-  - [Live Demo (Railway)](#live-demo-railway)
+- [Live Demo (Railway)](#live-demo-railway)
 
 ## Tech Stack
 
@@ -72,16 +67,16 @@ A full-stack Event Management application built with NestJS, React, and PostgreS
 ## Local Development
 
 ### Backend
-
 ```bash
+cp backend/.env.example backend/.env
 cd backend
 npm install
 npm run start:dev
 ```
 
 ### Frontend
-
-```Bash
+```bash
+cp frontend/.env.example frontend/.env
 cd frontend
 npm install
 npm run dev
@@ -103,7 +98,7 @@ npm run dev
 | GROQ_MODEL     | Groq model name               | llama-3.1-8b-instant                                                        |
 | GROQ_API_URL   | Groq API endpoint             | <https://api.groq.com/openai/v1/chat/completions>                           |
 | FRONTEND_URL   | Frontend URL for CORS         | <http://localhost:5173>                                                     |
-| VITE_API_URL   | Backend API URL for frontend  | <http://localhost:3000/api>                                                 |
+| VITE_API_URL   | Backend API URL for frontend  | <http://localhost:3000>                                                     |
 | NODE_ENV       | Application environment       | production                                                                  |
 
 ## API Endpoints
