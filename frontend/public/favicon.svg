@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Rounded square background -->
+  <rect width="32" height="32" rx="8" fill="#4F46E5"/>
+  <!-- Three horizontal bars (stylized E) -->
+  <rect x="7" y="8"  width="18" height="3" rx="1.5" fill="white"/>
+  <rect x="7" y="14.5" width="14" height="3" rx="1.5" fill="white"/>
+  <rect x="7" y="21" width="18" height="3" rx="1.5" fill="white"/>
+  <!-- Event dot amber (active day marker) -->
+  <circle cx="11" cy="27" r="2.5" fill="#FBBF24"/>
+  <!-- Second dot dimmed -->
+  <circle cx="18" cy="27" r="2.5" fill="white" opacity="0.35"/>
+</svg>

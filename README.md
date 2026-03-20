@@ -72,16 +72,16 @@ A full-stack Event Management application built with NestJS, React, and PostgreS
 ## Local Development
 
 ### Backend
-
 ```bash
+cp backend/.env.example backend/.env
 cd backend
 npm install
 npm run start:dev
 ```
 
 ### Frontend
-
-```Bash
+```bash
+cp frontend/.env.example frontend/.env
 cd frontend
 npm install
 npm run dev
@@ -103,7 +103,7 @@ npm run dev
 | GROQ_MODEL     | Groq model name               | llama-3.1-8b-instant                                                        |
 | GROQ_API_URL   | Groq API endpoint             | <https://api.groq.com/openai/v1/chat/completions>                           |
 | FRONTEND_URL   | Frontend URL for CORS         | <http://localhost:5173>                                                     |
-| VITE_API_URL   | Backend API URL for frontend  | <http://localhost:3000/api>                                                 |
+| VITE_API_URL   | Backend API URL for frontend  | <http://localhost:3000>                                                     |
 | NODE_ENV       | Application environment       | production                                                                  |
 
 ## API Endpoints
