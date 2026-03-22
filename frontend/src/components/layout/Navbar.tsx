@@ -4,8 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import type { RootState, AppDispatch } from "../../store";
 import { logout } from "../../store/auth.slice";
 import { Button } from "../common/Button";
+import { NotificationBell } from "../NotificationBell";
 
-// --- Icon imports ---
 import iconEvents from "../../assets/icons/icon-events.svg";
 import iconCalendar from "../../assets/icons/icon-calendar.svg";
 import iconPlus from "../../assets/icons/icon-plus.svg";
@@ -57,7 +57,6 @@ export const Navbar = () => {
       <header className="sticky top-0 z-40 bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14">
-            {/* ── Logo ── */}
             <Link
               to="/"
               className="text-lg font-bold text-gray-900 tracking-tight"
@@ -65,11 +64,9 @@ export const Navbar = () => {
               EventHub
             </Link>
 
-            {/* ── Desktop Nav ── */}
             <nav className="hidden md:flex items-center gap-6">
               {user ? (
                 <>
-                  {/* Events */}
                   <NavLink to="/events" className={navLinkClass}>
                     <img
                       src={iconEvents}
@@ -80,7 +77,6 @@ export const Navbar = () => {
                     Events
                   </NavLink>
 
-                  {/* My Events */}
                   <NavLink to="/my-events" className={navLinkClass}>
                     <img
                       src={iconCalendar}
@@ -91,16 +87,15 @@ export const Navbar = () => {
                     My Events
                   </NavLink>
 
-                  {/* ── Stage #2: AI Assistant ── */}
                   <NavLink to="/ai-assistant" className={navLinkClass}>
                     <span className="text-base leading-none" aria-hidden="true">
                       🤖
                     </span>
                     AI Assistant
                   </NavLink>
-                  {/* ─────────────────────────── */}
 
-                  {/* Create Event */}
+                  <NotificationBell />
+
                   <NavLink to="/events/create" className="flex items-center">
                     <Button variant="primary" size="sm">
                       <img
@@ -113,10 +108,8 @@ export const Navbar = () => {
                     </Button>
                   </NavLink>
 
-                  {/* Vertical divider */}
                   <div className="nav-divider" aria-hidden="true" />
 
-                  {/* User avatar + name */}
                   <div className="flex items-center gap-2">
                     <div className="nav-user-avatar">
                       <img src={iconUser} alt="" aria-hidden="true" />
@@ -126,7 +119,6 @@ export const Navbar = () => {
                     </span>
                   </div>
 
-                  {/* Logout icon button */}
                   <button
                     onClick={handleLogout}
                     className="flex items-center justify-center text-gray-500 hover:text-gray-900 transition-colors duration-150"
@@ -150,35 +142,36 @@ export const Navbar = () => {
               )}
             </nav>
 
-            {/* ── Mobile: burger button ── */}
-            <button
-              className={`burger-icon md:!hidden ${menuOpen ? "active" : ""}`}
-              onClick={() => setMenuOpen((prev) => !prev)}
-              aria-label={menuOpen ? "Close menu" : "Open menu"}
-              data-expanded={menuOpen}
-              type="button"
-            >
-              <span />
-              <span />
-              <span />
-            </button>
+            <div className="flex items-center gap-2 md:hidden">
+              {/* Bell visible in header on mobile when logged in */}
+              {user && <NotificationBell />}
+
+              <button
+                className={`burger-icon ${menuOpen ? "active" : ""}`}
+                onClick={() => setMenuOpen((prev) => !prev)}
+                aria-label={menuOpen ? "Close menu" : "Open menu"}
+                data-expanded={menuOpen}
+                type="button"
+              >
+                <span />
+                <span />
+                <span />
+              </button>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* ── Mobile: backdrop overlay ── */}
       <div
         className={`burger-overlay md:hidden ${menuOpen ? "open" : ""}`}
         onClick={closeMenu}
         aria-hidden="true"
       />
 
-      {/* ── Mobile: slide-in menu panel ── */}
       <nav
         className={`burger-menu md:hidden ${menuOpen ? "open" : ""}`}
         aria-label="Mobile navigation"
       >
-        {/* Close button */}
         <button
           className="burger-close-btn"
           onClick={closeMenu}
@@ -189,7 +182,6 @@ export const Navbar = () => {
 
         {user ? (
           <>
-            {/* Events */}
             <NavLink
               to="/events"
               className={burgerLinkClass}
@@ -199,7 +191,6 @@ export const Navbar = () => {
               Events
             </NavLink>
 
-            {/* My Events */}
             <NavLink
               to="/my-events"
               className={burgerLinkClass}
@@ -209,7 +200,6 @@ export const Navbar = () => {
               My Events
             </NavLink>
 
-            {/* ── Stage #2: AI Assistant ── */}
             <NavLink
               to="/ai-assistant"
               className={burgerLinkClass}
@@ -220,9 +210,7 @@ export const Navbar = () => {
               </span>
               AI Assistant
             </NavLink>
-            {/* ─────────────────────────── */}
 
-            {/* Create Event */}
             <NavLink
               to="/events/create"
               className="burger-create-btn"
@@ -232,7 +220,6 @@ export const Navbar = () => {
               Create Event
             </NavLink>
 
-            {/* User info */}
             <div className="burger-user-info">
               <img src={iconUser} alt="" aria-hidden="true" />
               <span>
@@ -240,7 +227,6 @@ export const Navbar = () => {
               </span>
             </div>
 
-            {/* Logout */}
             <button className="burger-logout-btn" onClick={handleLogout}>
               <img src={iconLogout} alt="" aria-hidden="true" />
               Logout

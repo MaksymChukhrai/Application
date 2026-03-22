@@ -1,7 +1,12 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';           // ✅ fixed
-import { CurrentUser } from '../common/decorators/current-user.decorator'; // ✅ fixed
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { AiService } from './ai.service';
 import { AskAiDto } from './dto/ask-ai.dto';
 
@@ -23,7 +28,10 @@ export class AiController {
     schema: {
       type: 'object',
       properties: {
-        answer: { type: 'string', example: 'You have 3 upcoming events this week.' },
+        answer: {
+          type: 'string',
+          example: 'You have 3 upcoming events this week.',
+        },
       },
     },
   })

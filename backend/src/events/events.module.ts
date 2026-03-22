@@ -4,14 +4,15 @@ import { Event } from './entities/event.entity';
 import { EventsService } from './events.service';
 import { EventsController } from './events.controller';
 import { TagsModule } from '../tags/tags.module';
+import { EventsGateway } from './events.gateway';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Event]),
-    TagsModule, // provides TagsService via exports
+    TagsModule,
   ],
   controllers: [EventsController],
-  providers: [EventsService],
-  exports: [EventsService],
+  providers: [EventsService, EventsGateway],
+  exports: [EventsService, EventsGateway], 
 })
 export class EventsModule {}

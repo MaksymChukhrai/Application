@@ -14,6 +14,7 @@ import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { EventResponseDto } from './dto/event-response.dto';
 import { TagsService } from '../tags/tags.service';
+import { EventsGateway } from './events.gateway';
 
 @Injectable()
 export class EventsService {
@@ -21,6 +22,7 @@ export class EventsService {
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
     private readonly tagsService: TagsService,
+    private readonly eventsGateway: EventsGateway,
   ) {}
 
   private toResponseDto(
@@ -77,7 +79,6 @@ export class EventsService {
       })
       .orderBy('event.date', 'ASC');
 
-    // Filter by tags if provided — event must have ALL specified tags
     if (tagIds && tagIds.length > 0) {
       qb.andWhere((qb2) => {
         const subQuery = qb2
@@ -147,7 +148,6 @@ export class EventsService {
       throw new BadRequestException('Event date must be in the future');
     }
 
-    // Resolve tagIds to Tag entities
     let tags: Tag[] = [];
     if (dto.tagIds && dto.tagIds.length > 0) {
       tags = await this.tagsService.findByIds(dto.tagIds);
@@ -176,7 +176,15 @@ export class EventsService {
       relations: ['organizer', 'participants', 'tags'],
     });
 
-    return this.toResponseDto(full!, organizer.id);
+    const response = this.toResponseDto(full!, organizer.id);
+
+    this.eventsGateway.broadcastEventCreated({
+      eventId: full!.id,
+      title: full!.title,
+      organizerName: `${organizer.firstName} ${organizer.lastName}`,
+    });
+
+    return response;
   }
 
   async update(
@@ -211,7 +219,6 @@ export class EventsService {
     if (dto.capacity !== undefined) event.capacity = dto.capacity;
     if (dto.visibility !== undefined) event.visibility = dto.visibility;
 
-    // Update tags if tagIds provided
     if (dto.tagIds !== undefined) {
       if (dto.tagIds.length === 0) {
         event.tags = [];
@@ -226,7 +233,6 @@ export class EventsService {
 
     const updated = await this.eventRepository.save(event);
 
-    // Reload to get fresh relations after save
     const full = await this.eventRepository.findOne({
       where: { id: updated.id },
       relations: ['organizer', 'participants', 'tags'],
@@ -277,6 +283,13 @@ export class EventsService {
 
     event.participants.push(user);
     const updated = await this.eventRepository.save(event);
+
+    this.eventsGateway.notifyParticipantJoined(event.organizer.id, {
+      eventId: event.id,
+      eventTitle: event.title,
+      userName: `${user.firstName} ${user.lastName}`,
+    });
+
     return this.toResponseDto(updated, user.id);
   }
 
@@ -298,8 +311,17 @@ export class EventsService {
       throw new BadRequestException('You are not a participant of this event');
     }
 
+    const leavingUser = event.participants[participantIndex];
+
     event.participants.splice(participantIndex, 1);
     const updated = await this.eventRepository.save(event);
+
+    this.eventsGateway.notifyParticipantLeft(event.organizer.id, {
+      eventId: event.id,
+      eventTitle: event.title,
+      userName: `${leavingUser.firstName} ${leavingUser.lastName}`,
+    });
+
     return this.toResponseDto(updated, userId);
   }
 }

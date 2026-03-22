@@ -20,40 +20,42 @@ export class AiService {
   async ask(question: string, userId: string): Promise<string> {
     try {
       const context = await this.buildContextSnapshot(userId);
-      const answer = await this.callGroqApi(question, context);
-      return answer;
+      return await this.callGroqApi(question, context);
     } catch (error) {
       this.logger.error('AI ask failed', error);
       return "Sorry, I didn't understand that. Please try rephrasing your question.";
     }
   }
 
-  // ─── Context builder ──────────────────────────────────────────────────────
-
   private async buildContextSnapshot(userId: string): Promise<string> {
     const now = new Date();
 
-    // Events the user organizes
+    const startOfWeek = new Date(now);
+    startOfWeek.setUTCDate(now.getUTCDate() - now.getUTCDay() + 1);
+    startOfWeek.setUTCHours(0, 0, 0, 0);
+
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setUTCDate(startOfWeek.getUTCDate() + 6);
+    endOfWeek.setUTCHours(23, 59, 59, 999);
+
+    const next7Days = new Date(now);
+    next7Days.setUTCDate(now.getUTCDate() + 7);
+
     const organizingEvents = await this.eventRepository.find({
       where: { organizer: { id: userId } },
       relations: ['organizer', 'participants', 'tags'],
       order: { date: 'ASC' },
     });
 
-    // Events the user attends (as participant)
-    const user = await this.userRepository.findOne({
-      where: { id: userId },
-      relations: [
-        'participatedEvents',
-        'participatedEvents.organizer',
-        'participatedEvents.participants',
-        'participatedEvents.tags',
-      ],
-    });
+    const attendingEvents = await this.eventRepository
+      .createQueryBuilder('event')
+      .innerJoin('event.participants', 'participant', 'participant.id = :userId', { userId })
+      .leftJoinAndSelect('event.organizer', 'organizer')
+      .leftJoinAndSelect('event.participants', 'participants')
+      .leftJoinAndSelect('event.tags', 'tags')
+      .orderBy('event.date', 'ASC')
+      .getMany();
 
-    const attendingEvents = user?.participatedEvents ?? [];
-
-    // Merge and deduplicate
     const allEventIds = new Set<string>();
     const allEvents: Event[] = [];
 
@@ -64,27 +66,29 @@ export class AiService {
       }
     }
 
-    // Format events for prompt
     const formatEvent = (e: Event): string => {
       const eventDate = new Date(e.date);
-      const isPast = eventDate < now;
       const tags = e.tags?.map((t) => t.name).join(', ') || 'none';
       const participants =
-        e.participants?.map((p) => `${p.firstName} ${p.lastName}`).join(', ') ||
-        'none';
-      const role = organizingEvents.some((o) => o.id === e.id)
-        ? 'organizer'
-        : 'attendee';
+        e.participants?.map((p) => `${p.firstName} ${p.lastName}`).join(', ') || 'none';
+      const role = organizingEvents.some((o) => o.id === e.id) ? 'organizer' : 'attendee';
+      const status = eventDate < now ? 'past' : 'upcoming';
+      const spotsLeft =
+        e.capacity != null
+          ? e.capacity - (e.participants?.length ?? 0)
+          : 'unlimited';
 
       return [
         `- Title: "${e.title}"`,
         `  Date: ${eventDate.toISOString().split('T')[0]}`,
-        `  Time: ${eventDate.toTimeString().slice(0, 5)}`,
+        `  Time: ${eventDate.toISOString().slice(11, 16)} (UTC)`,
         `  Location: ${e.location || 'N/A'}`,
         `  Description: ${e.description || 'N/A'}`,
         `  Tags: [${tags}]`,
         `  Role: ${role}`,
-        `  Status: ${isPast ? 'past' : 'upcoming'}`,
+        `  Status: ${status}`,
+        `  Capacity: ${e.capacity ?? 'unlimited'}`,
+        `  Spots left: ${spotsLeft}`,
         `  Participants (${e.participants?.length ?? 0}): ${participants}`,
       ].join('\n');
     };
@@ -92,8 +96,10 @@ export class AiService {
     const upcomingEvents = allEvents.filter((e) => new Date(e.date) >= now);
     const pastEvents = allEvents.filter((e) => new Date(e.date) < now);
 
-    const lines: string[] = [
-      `Current date and time: ${now.toISOString()}`,
+    return [
+      `Current date and time (UTC): ${now.toISOString()}`,
+      `Current week (UTC): ${startOfWeek.toISOString().split('T')[0]} to ${endOfWeek.toISOString().split('T')[0]}`,
+      `Next 7 days end (UTC): ${next7Days.toISOString().split('T')[0]}`,
       `User ID: ${userId}`,
       '',
       `=== UPCOMING EVENTS (${upcomingEvents.length}) ===`,
@@ -103,41 +109,47 @@ export class AiService {
       ...pastEvents.map(formatEvent),
       '',
       `Total events: ${allEvents.length}`,
-    ];
-
-    return lines.join('\n');
+      `Organizing: ${organizingEvents.length}`,
+      `Attending as participant: ${attendingEvents.length}`,
+    ].join('\n');
   }
 
-  // ─── Groq API call ────────────────────────────────────────────────────────
-
-  private async callGroqApi(
-    question: string,
-    context: string,
-  ): Promise<string> {
+  private async callGroqApi(question: string, context: string): Promise<string> {
     const apiKey = this.configService.get<string>('GROQ_API_KEY');
-    this.logger.log(`GROQ_API_KEY present: ${!!apiKey}, length: ${apiKey?.length ?? 0}`); 
-    const model =
-      this.configService.get<string>('GROQ_MODEL') ?? 'llama-3.1-8b-instant';
+    const model = this.configService.get<string>('GROQ_MODEL') ?? 'llama-3.1-8b-instant';
     const apiUrl =
       this.configService.get<string>('GROQ_API_URL') ??
       'https://api.groq.com/openai/v1/chat/completions';
 
     if (!apiKey) {
       this.logger.warn('GROQ_API_KEY is not set');
-      return 'Sorry, AI assistant is not configured. Please contact the administrator.';
+      return 'AI assistant is not configured. Please contact the administrator.';
     }
 
     const systemPrompt = [
-  'You are a helpful event management assistant.',
-  'You have READ-ONLY access to the user\'s event data.',
-  'You must NOT create, edit, or delete any data.',
-  'Answer questions concisely and precisely based ONLY on the provided context.',
-  'Always answer directly without any preamble or apology.',
-  'Never start your answer with "Sorry" unless the question is truly unrelated to events.',
-  'If and ONLY IF the question is completely unrelated to events, respond with exactly:',
-  '"Sorry, I didn\'t understand that. Please try rephrasing your question."',
-  '',
-  'Context (user\'s event data):',
+      'You are a READ-ONLY event management assistant.',
+      '',
+      'ABSOLUTE RULES — never break these:',
+      '1. You CANNOT create, edit, delete, or modify any data.',
+      '2. You CANNOT send emails, messages, or notifications.',
+      '3. You CANNOT perform any actions — only answer questions.',
+      '4. If asked to perform any action (delete/create/update/send), respond with exactly:',
+      '   "I\'m a read-only assistant. I can only answer questions about your events."',
+      '',
+      'Answer rules:',
+      '- Answer directly. No preamble, no filler phrases.',
+      '- Never start with "Sure", "Of course", "Certainly", "I can help with that".',
+      '- Use ONLY data from the context. Never invent or assume data.',
+      '- All times in context are UTC. Always append "(UTC)" when reporting time.',
+      '- For "this week": use "Current week (UTC)" range from context.',
+      '- For "next 7 days": use "Next 7 days end (UTC)" date from context.',
+      '- For tag questions: match the Tags field exactly.',
+      '- For participant questions: use the Participants field of the relevant event.',
+      '- If an event is not found in context: "I don\'t have data on that event."',
+      '- If the question is completely unrelated to events or user data, respond with exactly:',
+      '  "Sorry, I didn\'t understand that. Please try rephrasing your question."',
+      '',
+      'Context:',
       context,
     ].join('\n');
 
@@ -153,8 +165,8 @@ export class AiService {
           { role: 'system', content: systemPrompt },
           { role: 'user', content: question },
         ],
-        temperature: 0.3,
-        max_tokens: 512,
+        temperature: 0.2,
+        max_tokens: 1024,
       }),
     });
 

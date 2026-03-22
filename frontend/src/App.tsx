@@ -10,7 +10,7 @@ import { EventDetailPage } from "./pages/EventDetailPage";
 import { CreateEventPage } from "./pages/CreateEventPage";
 import { EditEventPage } from "./pages/EditEventPage";
 import { MyEventsPage } from "./pages/MyEventsPage";
-import { AiAssistantPage } from "./pages/AiAssistantPage";   // ← Stage #2
+import { AiAssistantPage } from "./pages/AiAssistantPage";
 
 const App = () => {
   return (
@@ -30,7 +30,7 @@ const App = () => {
               <Route path="/events/create" element={<CreateEventPage />} />
               <Route path="/events/:id/edit" element={<EditEventPage />} />
               <Route path="/my-events" element={<MyEventsPage />} />
-              <Route path="/ai-assistant" element={<AiAssistantPage />} />  {/* ← Stage #2 */}
+              <Route path="/ai-assistant" element={<AiAssistantPage />} /> 
             </Route>
 
             <Route path="/" element={<Navigate to="/events" replace />} />

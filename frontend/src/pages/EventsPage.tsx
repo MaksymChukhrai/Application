@@ -1,19 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../store";
 import { fetchEvents, setActiveTagIds } from "../store/events.slice";
 import { fetchTags } from "../store/tags.slice";
 import { EventList } from "../components/events/EventList";
+import { useUiStore } from "../store/uiStore";
 
 export const EventsPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { items, isLoading, error, activeTagIds } = useSelector(
     (state: RootState) => state.events,
   );
-
   const { items: allTags } = useSelector((state: RootState) => state.tags);
 
-  const [search, setSearch] = useState("");
+  const searchQuery = useUiStore((s) => s.searchQuery);
+  const setSearchQuery = useUiStore((s) => s.setSearchQuery);
 
   useEffect(() => {
     dispatch(fetchTags());
@@ -34,12 +35,11 @@ export const EventsPage = () => {
     dispatch(setActiveTagIds([]));
   };
 
-  // Client-side search filter (по title)
   const filtered = items.filter((event) =>
-    event.title.toLowerCase().includes(search.toLowerCase()),
+    event.title.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  const isTagFiltered = activeTagIds.length > 0; // ← Stage #2
+  const isTagFiltered = activeTagIds.length > 0;
 
   return (
     <div className="flex flex-col gap-6">
@@ -50,9 +50,7 @@ export const EventsPage = () => {
         </p>
       </div>
 
-      {/* Search + Tag filter row */}
       <div className="flex flex-col gap-3">
-        {/* Search input */}
         <div className="relative w-full max-w-sm">
           <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
             <svg
@@ -75,13 +73,13 @@ export const EventsPage = () => {
           <input
             type="text"
             placeholder="Search events..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="border border-gray-300 rounded-lg pl-9 pr-4 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="border border-gray-300 rounded-lg pl-9 pr-4 py-2 text-sm w-full 
+                       focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
 
-        {/* ── Stage #2: Tag filter ─────────────────── */}
         {allTags.length > 0 && (
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-sm text-gray-500 font-medium">
@@ -117,7 +115,6 @@ export const EventsPage = () => {
             )}
           </div>
         )}
-        {/* ─────────────────────────────────────────── */}
       </div>
 
       {error && (

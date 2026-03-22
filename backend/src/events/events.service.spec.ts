@@ -9,6 +9,9 @@ import {
 import { EventsService } from './events.service';
 import { Event, EventVisibility } from './entities/event.entity';
 import { User } from '../users/entities/user.entity';
+import { Tag } from '../tags/tag.entity';
+import { TagsService } from '../tags/tags.service';
+import { EventsGateway } from './events.gateway';
 
 const mockUser = (overrides: Partial<User> = {}): User => ({
   id: 'user-1',
@@ -34,9 +37,22 @@ const mockEvent = (overrides: Partial<Event> = {}): Event => ({
   organizer: mockUser(),
   organizerId: 'user-1',
   participants: [],
+  tags: [] as Tag[],
   createdAt: new Date(),
   updatedAt: new Date(),
   ...overrides,
+});
+
+const mockTagsService = (): Partial<TagsService> => ({
+  findByIds: jest.fn().mockResolvedValue([]),
+  findAll: jest.fn().mockResolvedValue([]),
+  findOrCreate: jest.fn(),
+});
+
+const mockEventsGateway = (): Partial<EventsGateway> => ({
+  notifyParticipantJoined: jest.fn(),
+  notifyParticipantLeft: jest.fn(),
+  broadcastEventCreated: jest.fn(),
 });
 
 describe('EventsService - joinEvent', () => {
@@ -57,6 +73,14 @@ describe('EventsService - joinEvent', () => {
             remove: jest.fn(),
             createQueryBuilder: jest.fn(),
           },
+        },
+        {
+          provide: TagsService,
+          useValue: mockTagsService(),
+        },
+        {
+          provide: EventsGateway,
+          useValue: mockEventsGateway(),
         },
       ],
     }).compile();
@@ -84,7 +108,7 @@ describe('EventsService - joinEvent', () => {
 
       expect(eventRepository.findOne).toHaveBeenCalledWith({
         where: { id: 'event-1' },
-        relations: ['organizer', 'participants'],
+        relations: ['organizer', 'participants', 'tags'],
       });
       expect(eventRepository.save).toHaveBeenCalledTimes(1);
       expect(result.participantCount).toBe(1);
@@ -125,7 +149,7 @@ describe('EventsService - joinEvent', () => {
       );
     });
 
-    it('should successfully join an event', async function (this: void) {
+    it('should call save with updated participants list', async function (this: void) {
       const user = mockUser({ id: 'user-2' });
       const event = mockEvent({ participants: [] });
       const updatedEvent = { ...event, participants: [user] };
@@ -137,14 +161,11 @@ describe('EventsService - joinEvent', () => {
 
       const result = await service.joinEvent('event-1', user);
 
-      const findOneMock = eventRepository.findOne;
-      const saveMock = eventRepository.save;
-
-      expect(findOneMock).toHaveBeenCalledWith({
+      expect(eventRepository.findOne).toHaveBeenCalledWith({
         where: { id: 'event-1' },
-        relations: ['organizer', 'participants'],
+        relations: ['organizer', 'participants', 'tags'],
       });
-      expect(saveMock).toHaveBeenCalledTimes(1);
+      expect(eventRepository.save).toHaveBeenCalledTimes(1);
       expect(result.participantCount).toBe(1);
       expect(result.isJoined).toBe(true);
     });
