@@ -1,6 +1,7 @@
 # Event Management System
-
 A full-stack Event Management application built with NestJS, React, and PostgreSQL.
+
+![Event Management System Preview](https://raw.githubusercontent.com/MaksymChukhrai/Application/master/frontend/public/images/preview.jpg)
 
 ## Table of Contents
 
