@@ -42,8 +42,8 @@ export class EventsService {
       capacity: event.capacity,
       visibility: event.visibility,
       organizer: {
-        id: event.organizer.id,
-        email: event.organizer.email,
+        id: currentUserId ? event.organizer.id : '',
+        email: currentUserId ? event.organizer.email : '',
         firstName: event.organizer.firstName,
         lastName: event.organizer.lastName,
       },

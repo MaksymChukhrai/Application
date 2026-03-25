@@ -27,8 +27,8 @@ import { AiModule } from './ai/ai.module';
         username: configService.getOrThrow<string>('DB_USERNAME'),
         password: configService.getOrThrow<string>('DB_PASSWORD'),
         database: configService.getOrThrow<string>('DB_NAME'),
-        entities: [User, Event, Tag], // added Tag
-        synchronize: true,
+        entities: [User, Event, Tag],
+        synchronize: configService.get<string>('NODE_ENV') !== 'production',
         logging: configService.get<string>('NODE_ENV') === 'development',
       }),
       inject: [ConfigService],

@@ -9,6 +9,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 
 @WebSocketGateway({
   cors: {
@@ -28,18 +29,29 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   private readonly logger = new Logger(EventsGateway.name);
 
+  constructor(private readonly jwtService: JwtService) {} // ← добавить
+
   handleConnection(client: Socket): void {
-    this.logger.log(`Client connected: ${client.id}`);
+    const token = client.handshake.auth?.token; // ← добавить
+    if (!token) {
+      this.logger.warn(`Client ${client.id} disconnected: no token`);
+      client.disconnect();
+      return;
+    }
+    try {
+      this.jwtService.verify(token); // ← верифицируем
+      this.logger.log(`Client connected: ${client.id}`);
+    } catch {
+      this.logger.warn(`Client ${client.id} disconnected: invalid token`);
+      client.disconnect();
+    }
   }
 
+  // остальные методы без изменений
   handleDisconnect(client: Socket): void {
     this.logger.log(`Client disconnected: ${client.id}`);
   }
 
-  /**
-   * Client emits 'join-room' with their userId after connecting.
-   * This allows targeting notifications to specific organizers.
-   */
   @SubscribeMessage('join-room')
   handleJoinRoom(
     @MessageBody() userId: string,
@@ -53,18 +65,14 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     organizerId: string,
     payload: { eventId: string; eventTitle: string; userName: string },
   ): void {
-    this.server
-      .to(`user:${organizerId}`)
-      .emit('participant:joined', payload);
+    this.server.to(`user:${organizerId}`).emit('participant:joined', payload);
   }
 
   notifyParticipantLeft(
     organizerId: string,
     payload: { eventId: string; eventTitle: string; userName: string },
   ): void {
-    this.server
-      .to(`user:${organizerId}`)
-      .emit('participant:left', payload);
+    this.server.to(`user:${organizerId}`).emit('participant:left', payload);
   }
 
   broadcastEventCreated(payload: {
