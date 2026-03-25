@@ -26,12 +26,15 @@ export const useSocket = () => {
   const isAuthenticated = !!user && !!accessToken;
 
   useEffect(() => {
-    if (!isAuthenticated || !user) return;
+    if (!isAuthenticated || !user || !accessToken) return;
 
     const apiUrl = import.meta.env.VITE_API_URL as string;
 
     const socket = io(`${apiUrl}/events`, {
       transports: ["websocket", "polling"],
+      auth: {
+        token: accessToken, // ← передаём JWT при handshake
+      },
     });
 
     socketRef.current = socket;
@@ -66,5 +69,5 @@ export const useSocket = () => {
       socketRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, user?.id]);
+  }, [isAuthenticated, user?.id, accessToken]);
 };
